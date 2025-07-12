@@ -45,14 +45,14 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house icon-det" viewBox="0 0 16 16">
                     <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
                   </svg> 
-                  Local: Teatro Aspro Shopping Plaza Mazza
+                  Local: {{ dadosEvento.local }}
                 </li>
 
                 <li>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill icon-det" viewBox="0 0 16 16">
                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"/>
                   </svg> 
-                  Classificação: Livre
+                  Classificação: {{ dadosEvento.classificacao == 0 ? 'Livre': '+' + dadosEvento.classificacao }}
                 </li>
               </ul>
             </div>
@@ -64,42 +64,41 @@
 
   <!-- Start datas -->
   <div class="section-datas">
-    <!-- Start escolha das datas -->
+    <!-- Título -->
     <div class="titulo-evento-principal">
       <h3 class="title-date-hor">Selecione abaixo o Dia e Horário</h3>
+    </div>
 
+    <div class="container">
       <div class="st_calender_tabs">
-        <div class="container">
+        <b-tabs>
+          <b-tab v-for="(data, index) in datas" :key="index">
+            <!-- Slot do título com HTML -->
+            <template #title>
+              <div class="data-mes">{{  data.mes }}</div>
+              <div class="data-layer">{{ data.dia }}</div>
+              <div class="data-semana">{{ data.semana }}</div>
+            </template>
 
-          <template v-for="(data, index) in datas" :key="index">
-          <div class="data-calendar">
-            <div class="data-mes">{{ data.mes }}</div>
-            <div class="data-layer">{{ data.dia }}</div>
-            <div class="data-semana">{{ data.semana }}</div>
-          </div>
-          </template>
-
-        </div>
+            <!-- Conteúdo da aba -->
+            <div class="section-area-pega-data">
+              <template v-for="(hora, index2) in data.hora" :key="index2">
+                <router-link :to="{ 
+                  name: 'ingressos', 
+                  params: { 
+                    eve_cod: data.evento[index2], 
+                    eve_nome: preparaTituloLink(dadosEvento.nome) 
+                  }
+                }">
+                <div class="btn-hora-evento">{{ hora }}</div>
+                </router-link>
+              </template>
+              <div class="clear-both"></div>
+            </div>
+          </b-tab>
+        </b-tabs>
       </div>
-      
     </div>
-    <!-- End escolha das datas -->
-
-    <!-- Start escolha do horario -->
-    <div class="container pega-datas">
-      <template v-for="(data, index) in datas" :key="index">
-
-        <div class="section-area-pega-data">
-          <template v-for="(hora, index2) in data.hora" :key="index2">
-            <div class="btn-hora-evento">{{ hora }}</div>
-          </template>
-
-          <div class="clear-both"></div>
-        </div>
-
-      </template> 
-    </div>
-    <!-- End escolha do horario -->
   </div>
   <!-- End datas -->
 
@@ -111,10 +110,11 @@ import HeaderInclude from './includes/HeaderInclude.vue';
 import FooterInclude from './includes/FooterInclude.vue';
 
 import endPointEvento from '@/services/endPointEvento.js';
-import { revisaLogoEvento, colecaoData } from '@/utils/formDadosEvento.js';
+import { revisaLogoEvento, colecaoData, preparaTituloLink } from '@/utils/formDadosEvento.js';
+
 export default {
   components: {
-    HeaderInclude, FooterInclude
+    HeaderInclude, FooterInclude,
   },
   data() {
     return {
@@ -163,12 +163,13 @@ export default {
   },
   methods: {
     revisaLogoEvento,
-    colecaoData
+    colecaoData,
+    preparaTituloLink
   }
 }
 </script>
 
-<style scoped>
+<style>
 .area-detalhes-evento,
 .section-datas {
   background: #f6f6f6;
@@ -211,28 +212,18 @@ export default {
 .title-date-hor {
   font-size: 17px;
   color: #fff !important;
-  margin-bottom: 20px;
 }
-.st_calender_tabs {
-  text-align: initial;
-  background: var(--segunda-cor);
-  width: 100%;
-  float: inline-end;
-  margin-bottom: 2rem;
-  padding: 2rem;
-}
-.data-calendar {
-  float: left;
-}
-.data-calendar {
+.st_calender_tabs .nav-tabs {
+    border: none;
+} 
+.st_calender_tabs .nav-link {
   border: 1px solid;
   border-radius: 5px;
-  width: 50px;
-  background: transparent;
-  border-color: #fff;
   margin-right: 10px;
   width: 65px;
-    height: 80px;
+  padding: 0;
+  margin-top: 1rem;
+  border: 1px solid #c9c9c9;
 }
 .data-mes {
   width: 100%;
@@ -241,28 +232,40 @@ export default {
   line-height: 15px;
   font-weight: 600;
   text-align: center;
-  color: var(--segunda-cor);
+  color: #fff;
   text-transform: uppercase;
-  background: #ffff;
+  background: #c9c9c9;
+  border-radius: 4px 4px 0px 0px;
 }
 .data-layer {
-  font-size: 32px;
+  font-size: 25px;
   font-weight: bold;
   line-height: 35px;
   text-align: center;
-  color: #fff;
+  color: #c9c9c9;
   text-transform: uppercase;
   width: 100%;
 }
 .data-semana {
   width: 100%;
-  height: 16px;
+  height: 20px;
   font-size: 13px;
   line-height: 17px;
   font-weight: 600;
   text-align: center;
-  color: #fff;
+  color: #c9c9c9;
   text-transform: uppercase;
+}
+.st_calender_tabs .nav-link.active {
+  border: 1px solid var(--segunda-cor);
+  background-color: #fff;
+}
+.st_calender_tabs .nav-link.active .data-mes {
+  background-color: var(--primeira-cor);
+}
+.st_calender_tabs .nav-link.active .data-layer,
+.st_calender_tabs .nav-link.active .data-semana {
+  color: var(--segunda-cor);
 }
 .section-area-pega-data {
   background: #fff;
@@ -276,6 +279,7 @@ export default {
   -ms-box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.10);
   box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.10);
   clear: both;
+  margin-top: 2rem;
 }
 .btn-hora-evento {
   float: left;

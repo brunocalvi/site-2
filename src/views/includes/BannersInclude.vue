@@ -49,7 +49,6 @@ export default {
     }
   },
   created() {
-    console.log(`${this.site}api/banners.php`);
     axios.get(`${this.site}api/banners.php`)
     .then((res) => {
       this.banners = res.data || [];

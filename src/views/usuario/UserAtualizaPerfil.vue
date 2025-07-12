@@ -414,8 +414,8 @@ export default {
       }
 
       const formData = new FormData();
-      formData.append('image', this.fotoPerfil); 
-      formData.append('id', this.usuario.id);
+      formData.append('file', this.fotoPerfil); 
+      formData.append('user_id', this.usuario.id);
 
       let resultado = await salvaFoto(formData);
       this.atuatizaFoto = true;

@@ -2,8 +2,8 @@
   <HeaderInclude></HeaderInclude>
 
   <div class="container mg-t-b">
-    <h2 class="section-title__title">{{ texto.titulo }}</h2>
-    <div v-html="texto.conteudo"></div>
+    <h2 class="section-title__title">{{ titulo }}</h2>
+    <div v-html="conteudo"></div>
   </div>
 
   <FooterInclude></FooterInclude>
@@ -22,7 +22,8 @@ export default {
   data() {
     return {
       id: '',
-      texto: {},
+      titulo: '',
+      conteudo: '',
     }
   },
   watch: {
@@ -40,15 +41,19 @@ export default {
     async atualizaTexto() {
       try {
         const resultado = await endPointSite.visualizaTexto(this.id);
-        this.texto = resultado;
-
-        if(resultado.redireciona == 'S') {
-          window.location.href = resultado.link;
-        } 
-
-        if(resultado.ativo == 'N') {
+        
+        if(resultado == undefined || resultado == '') {
           this.$router.push('/');
-        } 
+        } else if(resultado.redireciona == 'S') {
+          window.location.href = resultado.link;
+        } else if(resultado.ativo == 'N') {
+          this.$router.push('/');
+        } else {
+
+          this.titulo = resultado.titulo;
+          this.conteudo = resultado.conteudo;
+
+        }
       } catch (erro) {
         console.error('Erro ao buscar texto:', erro);
       }

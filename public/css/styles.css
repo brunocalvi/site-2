@@ -5,14 +5,9 @@
   --quarta-cor: #ec4c34;
   --quinta-cor: #d84448;
 }
-a {
-  text-decoration: none;
-}
-hr {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  border: 0;
-  border-top: 1px solid #9b9b9b;
+a,
+a:hover {
+  text-decoration: none!important;
 }
 .menu-top-site {
   background-color: var(--primeira-cor);
@@ -30,72 +25,6 @@ hr {
   font-weight: 500;
   position: relative;
   text-transform: uppercase;
-}
-.input-pesquisa {
-  border: 1px solid #000;
-  border-radius: 10px 0px 0px 10px;
-  height: 50px;
-  background: #ffffff;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-.btn-pesquisa-header {
-  width: 50px;
-  height: 50px;
-  /*float: left;*/
-  text-align: center;
-  background: var(--segunda-cor);
-  border: 0;
-  color: #ffffff;
-  -webkit-border-top-right-radius: 10px;
-  -moz-border-top-right-radius: 10px;
-  border-top-right-radius: 10px;
-  -webkit-border-bottom-right-radius: 10px;
-  -moz-border-bottom-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-  border-radius: 0px 10px 10px 0px;
-  font-size: 19px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.btn-pesquisa-header:hover {
-  border: 1px solid var(--segunda-cor);
-  color: var(--segunda-cor);
-  background-color: #fff;
-}
-.btn-destaq-layo {
-  background: var(--segunda-cor);
-  color: #ffffff;
-  height: 50px;
-  border: 1px solid transparent;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
-  text-transform: uppercase;
-  width: 150px;
-  margin: 0px 12px;
-}
-.btn-final-header {
-  width: 50px;
-  height: 50px;
-  background: var(--segunda-cor);
-  border: 0;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
-  line-height: 0;
-  color: #fff;
-  font-size: 25px;
-}
-.btn-final-header:focus {
-  border: none;
-  box-shadow: none;
-}
-.btn-destaq-layo:hover,
-.btn-final-header:hover {
-  border: 1px solid #fff;
-  color: #fff;
 }
 /* START CHECKBOX CUSTOM */ 
 .check {
@@ -381,19 +310,6 @@ label {
 }
 .modal-form__link:hover {
   color: #101010;
-}
-.btn-faz-login {
-  width: 100%;
-  background-color: var(--primeira-cor);
-  color: #fff;
-  border: none;
-  height: 50px;
-  border-radius: 10px;
-  text-transform: uppercase;
-}
-.btn-faz-login:hover {
-  color: var(--primeira-cor);
-  border: 1px solid var(--primeira-cor);
 }
 .fazer-cadastro {
   margin-top: 2rem;

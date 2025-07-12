@@ -33,7 +33,7 @@ export default {
   },
   async visualizaTexto(id) {
     try {
-      const response = await api.get(`/textos.php?gmet=2&id=${id}`);
+      const response = await api.get(`/textos.php?gmet=1&id=${id}`);
       return response.data[0];
     } catch (error) {
       console.error('Erro ao consultar o texto: ', error);
@@ -42,7 +42,7 @@ export default {
   },
   async listatextos(posi) {
     try {
-      const response = await api.get(`/textos.php?gmet=1&posi=${posi}`);
+      const response = await api.get(`/textos.php?gmet=2&posi=${posi}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao consultar os textos: ', error);

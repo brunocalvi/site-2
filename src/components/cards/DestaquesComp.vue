@@ -213,4 +213,10 @@ export default {
   background-color: #fff;
   padding: 3rem 0;
 }
+hr {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 0;
+  border-top: 1px solid #9b9b9b;
+}
 </style>

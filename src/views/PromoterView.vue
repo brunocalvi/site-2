@@ -143,6 +143,7 @@ export default {
   text-align: center;
   font-size: 32px;
   margin-bottom: 4rem;
+  padding-top: 1rem;
 }
 .titulo-eventos:before {
   content: '';

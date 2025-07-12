@@ -68,5 +68,69 @@ export default {
 </script>
 
 <style>
-
+.btn-destaq-layo {
+  background: var(--segunda-cor);
+  color: #ffffff;
+  height: 50px;
+  border: 1px solid transparent;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  width: 150px;
+  margin: 0px 12px;
+}
+.btn-final-header {
+  width: 50px;
+  height: 50px;
+  background: var(--segunda-cor);
+  border: 0;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  line-height: 0;
+  color: #fff;
+  font-size: 25px;
+}
+.btn-final-header:focus {
+  border: none;
+  box-shadow: none;
+}
+.btn-destaq-layo:hover,
+.btn-final-header:hover {
+  border: 1px solid #fff;
+  color: #fff;
+}
+.btn-pesquisa-header {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  background: var(--segunda-cor);
+  border: 0;
+  color: #ffffff;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-top-right-radius: 10px;
+  border-top-right-radius: 10px;
+  -webkit-border-bottom-right-radius: 10px;
+  -moz-border-bottom-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-radius: 0px 10px 10px 0px;
+  font-size: 19px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.btn-pesquisa-header:hover {
+  border: 1px solid var(--segunda-cor);
+  color: var(--segunda-cor);
+  background-color: #fff;
+}
+.input-pesquisa {
+  border: 1px solid #000;
+  border-radius: 10px 0px 0px 10px;
+  height: 50px;
+  background: #ffffff;
+  padding-left: 20px;
+  padding-right: 20px;
+}
 </style>

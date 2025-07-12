@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export async function salvaFoto(formData) {
   try {
-    const response = await axios.post(`${process.env.VUE_APP_URL_SITE}api/fotoUsuario.php`, formData, {
+    const response = await axios.post(`${process.env.VUE_APP_URL_SITE}api/enviaFotoPerfil.php`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -18,7 +18,7 @@ export async function salvaFoto(formData) {
 
 export async function getFoto(id) {
   try {
-    const response = await axios.get(`${process.env.VUE_APP_URL_SITE}api/fotoUsuario.php?id=${id}`);
+    const response = await axios.get(`${process.env.VUE_APP_URL_SITE}api/fotoUsuario.php?user=${id}&arq=FOT`);
     return response.data;
   } catch (error) {
     console.error('Erro ao consultar a imagem:', error);

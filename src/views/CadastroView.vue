@@ -632,6 +632,7 @@ export default {
 }
 .camp_obrigatorio {
   color: #ff0000;
+  text-decoration: none;
 }
 .ajuste-nascimento {
   display: inline-block;

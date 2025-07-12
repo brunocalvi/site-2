@@ -3,8 +3,8 @@
 
   <Alert v-if="retorno != undefined" :msg="retorno" @fechar="estadoAlerta"></Alert>
 
-  <div class="hs_blog_box1_main_wrapper" data-aos="fade-up" data-aos-duration="1000">
-		<div class="hs_blog_box1_cont_main_wrapper">
+  <div class="hs_blog_box1_main_wrapper">
+		<div class="hs_blog_box1_cont_main_wrapper" data-aos="fade-up" data-aos-duration="1000">
 
 			<div class="hs_blog_cont_heading_wrapper text-center">
 				<h2>Acesse sua conta</h2>
@@ -147,5 +147,18 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.btn-faz-login {
+  width: 100%;
+  background-color: var(--primeira-cor);
+  color: #fff;
+  border: none;
+  height: 50px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.btn-faz-login:hover {
+  color: var(--primeira-cor);
+  border: 1px solid var(--primeira-cor);
 }
 </style>
