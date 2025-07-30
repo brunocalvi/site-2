@@ -97,10 +97,10 @@ const path = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_PUBLIC_
 const router = createRouter({
   history: createWebHistory(path),
   routes,
-  /*scrollBehavior() {
+  scrollBehavior() {
     // Sempre rola para o topo
     return { top: 0, behavior: 'smooth' };
-  },*/
+  },
 });
 
 async function endPointConfi(to, from, next) {

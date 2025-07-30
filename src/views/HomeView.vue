@@ -54,43 +54,14 @@ export default {
 
     if(config) {
       this.gt_evento_pai = config.gt_evento_pai;
-    } 
+    }
+    
+    localStorage.removeItem("pdv_id");
   },
 }
 </script>
 
 <style>
-.titulo-home-eventos {
-  color: #000000;
-  text-transform: uppercase;
-  font-weight: bold;
-  position: relative;
-  font-family: 'Poppins', sans-serif;
-  text-align: center;
-  font-size: 32px;
-  margin-bottom: 4rem;
-}
-.titulo-home-eventos:before {
-  content: '';
-  border: 2px solid var(--primeira-cor);
-  width: 30px;
-  position: absolute;
-  bottom: -21px;
-  left: 0;
-  right: 0;
-  margin: 0px auto;
-  z-index: 1;
-}
-.titulo-home-eventos:after {
-  content: '';
-  border: 1px solid #dddddd;
-  width: 170px;
-  position: absolute;
-  bottom: -20px;
-  left: 0;
-  right: 0;
-  margin: 0px auto;
-}
 .section-area {
   background: #f1f1f1;
   padding-top: 94px;

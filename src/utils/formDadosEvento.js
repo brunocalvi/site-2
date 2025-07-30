@@ -74,18 +74,18 @@ export function mesAbreviado(mes) {
 
 export function mesCompleto(mes) {
   switch (mes) {
-    case '01': case '1': return 'Janeiro';
-    case '02': case '2': return 'Fevereiro';
-    case '03': case '3': return 'Março';
-    case '04': case '4': return 'Abril';
-    case '05': case '5': return 'Maio';
-    case '06': case '6': return 'Junho';
-    case '07': case '7': return 'Julho';
-    case '08': case '8': return 'Agosto';
-    case '09': case '9': return 'Setembro';
-    case '10': return 'Outubro';
-    case '11': return 'Novembro';
-    case '12': return 'Dezembro';
+    case '01': case '1': return 'janeiro';
+    case '02': case '2': return 'fevereiro';
+    case '03': case '3': return 'março';
+    case '04': case '4': return 'abril';
+    case '05': case '5': return 'maio';
+    case '06': case '6': return 'junho';
+    case '07': case '7': return 'julho';
+    case '08': case '8': return 'agosto';
+    case '09': case '9': return 'setembro';
+    case '10': return 'outubro';
+    case '11': return 'novembro';
+    case '12': return 'dezembro';
     default: return '';
   }
 }
