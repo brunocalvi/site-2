@@ -117,6 +117,15 @@ export function formatValor(value) {
   }).format(val);
 }
 
+export function formatValorSemR(value) {
+  let val = value.replace(/,/g, '.');
+
+  return new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(Number(val));
+}
+
 export function escreveStatus(status) {
 	switch (status) {
 		case 'PG': return 'Pago';
@@ -126,6 +135,17 @@ export function escreveStatus(status) {
 		case 'EA': return 'Em Análise';
 		default: return 'Erro';
 	}
+}
+
+export function categoriaIngresso(categoria){
+  switch (categoria) {
+    case 'I': return 'Inteira';
+    case 'M': return 'Meia';
+    case 'C': return 'Cortesia';
+    case 'P': return 'Promocional';
+    case 'L': return 'Coletiva';
+    default: return 'Erro';
+  }
 }
 
 export function diaDaSemana(dateString) {

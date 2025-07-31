@@ -12,7 +12,7 @@
             <MenuAreaUsuario 
               :email="usuario.email" 
               :nome="usuario.nome" 
-              :id="usuario.id" 
+              :id="Number(usuario.id)" 
               @openModal="openModal"
               :btnImagem="true"
               :atuatizaFoto="atuatizaFoto"

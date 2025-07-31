@@ -69,7 +69,7 @@ export default {
   props: {
     email: String,
     nome: String,
-    id: String,
+    id: Number,
     btnImagem: Boolean,
     atuatizaFoto: Boolean,
   },
