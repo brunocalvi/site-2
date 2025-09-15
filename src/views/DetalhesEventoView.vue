@@ -127,6 +127,7 @@ export default {
       minimo: '0.00',
       maximo: '0.00',
       datas: {},
+      codigos: []
     }
   },
   async created() {
@@ -143,28 +144,62 @@ export default {
       this.gt_moeda = config.gt_moeda;
     }
 
-    this.dadosEvento = await endPointEvento.dadosEvento({ 
-      eve_cod: this.eve_cod,
-      pdv_id: this.pdv_id,
-    });
-
-    if(this.dadosEvento.statusId != '00' || this.dadosEvento.ativo != '1') {
-      this.$router.push('/');
+    await this.carregarEvento(this.eve_cod);
+  },
+  watch: {
+    '$route.params.eve_cod': {
+      immediate: false,
+      handler(newVal) {
+        this.carregarEvento(newVal)
+      }
     }
-
-    this.generos = this.dadosEvento.genero.split(',');
-
-    this.dadosEvento.valores.forEach(val => {
-      this.minimo = val.min;
-      this.maximo = val.max;
-    });
-
-    this.datas = colecaoData(this.dadosEvento.DataHora);
   },
   methods: {
     revisaLogoEvento,
     colecaoData,
-    preparaTituloLink
+    preparaTituloLink,
+    async carregarEvento(eveCod) {
+      let eve_cods = [];
+      this.eve_cod = eveCod;
+
+      this.dadosEvento = await endPointEvento.dadosEvento({ 
+        eve_cod: this.eve_cod,
+        pdv_id: this.pdv_id,
+      });
+
+      if(this.dadosEvento.statusId != '00' || this.dadosEvento.ativo != '1') {
+        this.$router.push('/');
+        return;
+      }
+
+      this.MaisEventosAgrupados = await endPointEvento.buscaMaisEventosPai({
+        pdv_id: this.pdv_id,
+        txt_nome: this.dadosEvento.nome,
+        estado: this.dadosEvento.estado,
+        cidade: this.dadosEvento.cidade,
+        local: this.dadosEvento.local,
+      });
+
+      this.codigos = this.MaisEventosAgrupados.Lista || [];
+
+      this.codigos.forEach(item => {
+        eve_cods.push(item.codigo);
+      });
+
+      if(this.eve_cod != eve_cods.toString()) {
+        this.$router.push({ name: 'detalhes_evento', params: { eve_cod: eve_cods.toString(), eve_nome: this.preparaTituloLink(this.dadosEvento.nome) } }); 
+        return;
+      }
+
+      this.generos = this.dadosEvento.genero.split(',');
+
+      this.dadosEvento.valores.forEach(val => {
+        this.minimo = val.min;
+        this.maximo = val.max;
+      });
+
+      this.datas = colecaoData(this.dadosEvento.DataHora);
+    }
   }
 }
 </script>

@@ -29,4 +29,31 @@ export default {
       throw error;
     }
   },
+  async configMesaSelect(data) {
+    try {
+      const response = await api.get(`/setorlote.asp?key=${key}&gmet=6&par1=${data.eve_cod}&par2=${data.lot_cod}&par3=${data.assento_parcial}`);
+      return response.data.MESAS;
+    } catch (error) {
+      console.error('Erro ao criar a mesa:', error);
+      throw error;
+    }
+  },
+  async buscaLoteAdicional(data) {
+    try {
+      const response = await api.get(`/setorlote.asp?key=${key}&gmet=13&par1=${data.lot_cod}&par2=${data.pdv}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao busca o lote adicional:', error);
+      throw error;
+    }
+  },
+  async verificaQtdLocalVenda(data) {
+    try {
+      const response = await api.get(`/setorlote.asp?key=${key}&gmet=8&par1=${data.eve_cod}&par2=${data.ite_cod}&par3=${data.qtd}&par4=${data.mes_id}&par5=${data.mas_id}&par6=0`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao verifica se tem qtde/local disponivel para venda:', error);
+      throw error;
+    }
+  },
 };

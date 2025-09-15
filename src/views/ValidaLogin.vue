@@ -8,7 +8,6 @@
 
 			<div class="hs_blog_cont_heading_wrapper text-center">
 				<h2>Acesse sua conta</h2>
-				<p>Caso ainda não tenha um cadastro você pode fazê-lo rapidamente utilizando o link abaixo</p> 
 			</div>
 
       <form action="" method="POST" id="login-form" @submit.prevent="enviaLogin">
@@ -31,17 +30,6 @@
         </div>
 
         <div class="modal-form afaste">
-          <div class="st_cherity_img_cont">
-            <input type="checkbox" name="rememberme" id="cbx" style="display: none;" v-model="salvaLogin">
-            <label for="cbx" class="check">
-                <svg width="18px" height="18px" viewBox="0 0 18 18">
-                    <path d="M1,9 L1,3.5 C1,2 2,1 3.5,1 L14.5,1 C16,1 17,2 17,3.5 L17,14.5 C17,16 16,17 14.5,17 L3.5,17 C2,17 1,16 1,14.5 L1,9 Z"></path>
-                    <polyline points="1 9 7 14 15 4"></polyline>
-                </svg>
-            </label>
-            <label for="cbx">Lembrar</label>
-          </div>
-
           <div class="text-end">
             <router-link to="/recupera-senha" class="modal-form__link">Esqueceu a senha?</router-link>
           </div>  
@@ -70,56 +58,41 @@
 </template>
 
 <script>
-import auth from '@/store/auth.js';
-import crypto from '@/store/cryptoLembrar.js';
+import auth from "@/store/auth.js";
+import guardaIngressos from '@/store/guardaIngressos.js';
+import infoUsuario from "@/store/infoUsuario.js";
 
 import { dadosUsuario } from "@/services/dadosUsuario.js";
 
-import infoUsuario from "@/store/infoUsuario.js";
-
-import HeaderInclude from "@/views/includes/HeaderInclude.vue";
-import FooterInclude from "@/views/includes/FooterInclude.vue";
 import Alert from "@/components/alerts/AlertAcao.vue";
+import HeaderInclude from "./includes/HeaderInclude.vue";
+import FooterInclude from "./includes/FooterInclude.vue";
 
 export default {
-  components: { 
-    HeaderInclude, FooterInclude, Alert 
+  components: {
+    Alert, HeaderInclude, FooterInclude
   },
   data() {
     return {
+      usuario: {},
+      //email: 'bruno.calvi@adaltech.com.br',
+      //senha: 'L11a17l71@',
       email: '',
       senha: '',
       inputType: 'password',
       retorno: undefined,
-      salvaLogin: false,
-      usuario: {},
     }
   },
-  watch: {
-    salvaLogin() {
-      let data = {
-        login: this.email,
-        senha: this.senha,
-        salvar: this.salvaLogin,
-      };
-
-      let encryptedDados = crypto.encryptData(data);
-      localStorage.setItem('remember', encryptedDados);
-    },
-  },
   created() {
-    if(localStorage.getItem('remember')) {
-      let resultado = crypto.decryptData(localStorage.getItem('remember'));
-      this.email = resultado.login; 
-      this.senha = resultado.senha; 
-      this.salvaLogin = resultado.salvar;
-      
-      if(resultado.salvar == false) {
-        localStorage.removeItem('remember');
-        this.email = ''; 
-        this.senha = ''; 
-        this.salvaLogin = false;
-      }
+    const ing = guardaIngressos.getAll();
+    const user = infoUsuario.get();
+
+    if(Object.keys(ing).length === 0) {
+      this.$router.push('/');
+    }
+
+    if(Object.keys(user).length !== 0) {
+      this.$router.push('/checkout');
     }
   },
   methods: {
@@ -134,28 +107,28 @@ export default {
         let resposta = await auth.login(this.email, this.senha);
 
         if(resposta == true) {
+          this.retorno = undefined;
 
           this.usuario = await dadosUsuario();
           infoUsuario.salvar(this.usuario);
 
-          this.$router.push('/area-usuario');
+          this.$router.push('/checkout');
 
         } else {
           this.retorno = resposta;
         }
       } catch(e) {
         console.error(e);
-
       }
     }
   },
 }
 </script>
 
-<style>
+<style scoped>
 .afaste {
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
 }
 .btn-faz-login {
@@ -170,5 +143,6 @@ export default {
 .btn-faz-login:hover {
   color: var(--primeira-cor);
   border: 1px solid var(--primeira-cor);
+  background-color: #fff;
 }
 </style>

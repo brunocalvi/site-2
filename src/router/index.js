@@ -88,7 +88,20 @@ const routes = [
     name: 'detalhes_evento',
     component: () => import('@/views/DetalhesEventoView.vue'),
     beforeEnter: endPointConfi,
-  }
+  },
+  {
+    path: '/validacao',
+    name: 'validacao_login',
+    component: () => import('@/views/ValidaLogin.vue'),
+  },
+  {
+    path: '/checkout',
+    name: 'checkout',
+    component: () => import('@/views/CheckoutView.vue'),
+    beforeEnter: endPointConfi,
+    meta: { requiresAuthComp: true },
+
+  },
 ]
 
 // verifica se está em PROD para alterar o caminho raiz
@@ -121,9 +134,13 @@ async function endPointConfi(to, from, next) {
 router.beforeEach(async (to, from, next) => {
   const token = sessionStorage.getItem('token');
 
-  if (to.meta.requiresAuth) {
-    if (!token) {
+  if (to.meta.requiresAuth || to.meta.requiresAuthComp) {
+    if (!token && to.meta.requiresAuth) {
       return next('/login');
+    }
+
+    if(!token && to.meta.requiresAuthComp) {
+      return next('/');
     }
 
     try {

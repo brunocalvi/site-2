@@ -1,6 +1,8 @@
 <template>
   <HeaderInclude></HeaderInclude>
 
+  <Alert v-if="retorno != undefined" :msg="retorno" @fechar="estadoAlerta"></Alert>
+
   <div class="titulo-evento-principal">
     <h3>{{ dadosEvento.nome }}</h3>
   </div>
@@ -13,7 +15,7 @@
     <div class="row">
       <div class="col-md-5">
         <div>
-          <img :src="revisaLogoEvento(dadosEvento.logo)" :alt="dadosEvento.nome" class="img-detail-event">
+          <img :src="logo" :alt="dadosEvento.nome" class="img-detail-event">
         </div>
 
         <div class="dado-event-inicial">
@@ -52,13 +54,13 @@
                 :eve_cod="Number(eve_cod)" 
                 :pdv_id="Number(pdv_id)" 
                 :setor_id="Number(lote.gru_id)"
-                @somaTotal="somaTotalGeral"
+                @carrinho="carrinhoInicial"
               ></IngressosComp>
             </b-collapse>
           </template>
 
           <div class="text-right mt-2">
-            <span class="total-ingressos">Total: {{ gt_moeda }} {{ formatValorBR(valorGeral) }}</span>
+            <span class="total-ingressos">Total: {{ gt_moeda }} {{ formatValor(valorGeral) }}</span>
           </div>
 
           <template v-if="dadosEvento.eve_link_termo_responsabilidade != ''">
@@ -81,7 +83,7 @@
             <b-form-select v-model="selected" :options="formEntrega" required></b-form-select>
           </div>
 
-          <b-button variant="outline-success" class="btn-inicia-compr">Comprar Ingresso</b-button>
+          <b-button variant="outline-success" class="btn-inicia-compr" @click="vaiParalogin()">Comprar Ingresso</b-button>
         </div>
       </div>
     </div>
@@ -135,16 +137,19 @@ import HeaderInclude from './includes/HeaderInclude.vue';
 import FooterInclude from './includes/FooterInclude.vue';
 import NewsletterInclu from './includes/NewsletterInclu.vue';
 import IngressosComp from '@/components/IngressosComp.vue';
+import Alert from "@/components/alerts/AlertAcao.vue";
 
 import endPointEvento from '@/services/endPointEvento.js';
-import endPointPdv from '@/services/endPointPdv';
-import endPointSetorLote from '@/services/endPointSetorLote';
+import endPointPdv from '@/services/endPointPdv.js';
+import endPointSetorLote from '@/services/endPointSetorLote.js';
 
-import { revisaLogoEvento, mesCompleto, formatValorBR } from '@/utils/formDadosEvento.js';
+import { revisaLogoEvento, mesCompleto, formatValor } from '@/utils/formDadosEvento.js';
+import validacoesIngressos from '@/store/validacoesIngressos.js';
+import guardaIngressos from '@/store/guardaIngressos.js';
 
 export default {
   components: {
-    HeaderInclude, FooterInclude, NewsletterInclu, IngressosComp 
+    HeaderInclude, FooterInclude, NewsletterInclu, IngressosComp, Alert 
   },
   data() {
     return {
@@ -155,13 +160,15 @@ export default {
       viraLote: {},
       lotes: [],
       collapseState: {},
-      ingressos: {},
       setor_id: '',
       formEntrega: [{ value: null, text: 'Escolha a forma de entrega' }],
       selected: null,
-      statusTermo: true,
       termoLinkEvet: true,
       valorGeral: 0,
+      infoIngresso: [],
+      retorno: undefined,
+      logo: '',
+      //dadosValidacao: guardaIngressos.state.dadosValidacao
     }
   },
   async created() {
@@ -193,6 +200,8 @@ export default {
       this.data_verificada = `${dataArr[0]} de ${mesCompleto(dataArr[1])} de ${dataArr[2]}`;
     }
 
+    this.logo = this.revisaLogoEvento(this.dadosEvento.logo);
+
     // API para rodar e virar o lote automtico. 
     this.viraLote = await endPointPdv.viraLoteAutomatico({ 
       pdv: this.pdv_id, 
@@ -217,12 +226,108 @@ export default {
   methods: {
     revisaLogoEvento,
     mesCompleto,
-    formatValorBR,
-    somaTotalGeral(value) {
-      if(value.tipo == '+') {
-        this.valorGeral = this.valorGeral + value.valor;
+    formatValor,
+    async verificaQtdIngLote() {
+      for(let ing in this.infoIngresso) {
+        let disp_lote = await endPointSetorLote.verificaQtdLocalVenda({
+          eve_cod: this.eve_cod, 
+          ite_cod: this.infoIngresso[ing].ite_cod, 
+          qtd: this.infoIngresso[ing].qtd, 
+          mes_id: this.infoIngresso[ing].mes_id, 
+          mas_id: 0,
+        });
+
+        disp_lote.nome_setor_lote = this.infoIngresso[ing].nome_setor_lote; 
+        return disp_lote;
+      }
+    },
+    estadoAlerta(data) {
+     this.retorno = data; 
+    },
+    carrinhoInicial(value) {
+      let somaValores = 0;
+      const id = value.ite_cod;
+
+      // Atualiza ou remove
+      if(value.qtd === 0) {
+        delete this.infoIngresso[id];
       } else {
-        this.valorGeral = this.valorGeral - value.valor;
+        this.infoIngresso[id] = value;
+      }
+
+      // Recalcula o total apenas com itens > 0
+      for(let car in this.infoIngresso) {
+        somaValores += this.infoIngresso[car].valorTot * this.infoIngresso[car].qtd;
+      }
+
+      this.valorGeral = somaValores;
+    },
+    async vaiParalogin() {
+      let err = undefined;
+      let form_entrega = Number(this.selected); 
+
+      if(this.dadosEvento.eve_link_termo_responsabilidade != '' && this.termoLinkEvet == false) {
+        err = "SIT-ZR694402 : É necessário aprovar o termo de aceitação.";
+      }
+
+      if(this.selected == null) {
+        err = "SIT-MW701511 : É obrigatório selecionar uma forma de entrega.";
+      }
+
+      if(Object.keys(this.infoIngresso).length === 0) {
+        err = "SIT-CS164439 : É obrigatório selecionar um ingresso.";
+      }
+
+      let validIng = await validacoesIngressos.dadosIngressos(this.infoIngresso);
+
+      if(validIng != undefined) err = validIng;
+
+      //verifico sem assento -----------------
+      try {
+        let qtdIngDis = await this.verificaQtdIngLote();
+
+        if(qtdIngDis.statusId != '00') {
+          err = `SIS-JW056592 : O ${qtdIngDis.nome_setor_lote} está com o erro: "${qtdIngDis.statusMsg}"`;
+        } 
+      } catch(e) {
+        //console.log("Erro qtd: ", e);
+      }
+
+      //dados da forma de entrega -----------------
+      const entrega = await endPointEvento.dadosFormaEntrega(form_entrega);
+      if(entrega.statusId != '00') err = `SIS-DR166214 : ${entrega.statusMsg}`;
+
+      if(err == undefined) {
+        this.retorno = undefined;
+
+        //guardaIngressos.salvar(this.eve_cod, {
+        guardaIngressos.salvar({
+          pdv_id: Number(this.pdv_id),
+          logo: this.logo,
+          form_entrega: form_entrega, 
+          eve_cod: Number(this.eve_cod),
+          eve_nome: this.dadosEvento.nome,
+          eve_limite_meia: this.dadosEvento.limite_meia,
+          eve_mostra_taxa: this.dadosEvento.eve_mostra_taxa,
+          eve_label_taxa: this.dadosEvento.eve_label_taxa,
+          eve_link_termo_resp: this.dadosEvento.eve_link_termo_responsabilidade,
+          eve_qtde_cpf: this.dadosEvento.qtde_cpf,
+          aceita_pix: this.dadosEvento.eve_aceita_pix,
+          aceita_pix_aarin: this.dadosEvento.eve_aceita_pix_aarin,
+          aceita_boleto: this.dadosEvento.eve_aceita_boleto, 
+          val_taxa_bol: parseFloat(this.dadosEvento.eve_val_taxa_bol.toString().replace(',', '.')),  
+          dias_vencto_bol: this.dadosEvento.eve_dias_vencto_bol,
+          limite_venda_boleto: this.dadosEvento.eve_limite_venda_boleto,
+          pre_cadastro: this.dadosEvento.eve_pre_cadastro,
+          forma_ent_valor: Number(entrega.valor),
+          forma_ent_descricao: entrega.descricao,
+          ingresso: this.infoIngresso, 
+        });
+
+        this.$router.push('/validacao');
+
+      } else {
+        this.retorno = err;
       }
     }
   }

@@ -61,4 +61,24 @@ export default {
       throw error;
     }
   },
+  async buscaMaisEventosPai(data) {
+    try {
+      const response = await api.get(`/lista_busca.asp?gmet=1&key=${key}&pdv_id=${data.pdv_id}&ocultar=N&txt_nome=${data.txt_nome}&estado=${data.estado}&cidade=${data.cidade}&local=${data.local}`);
+      return response.data;
+
+    } catch (error) {
+      console.error('Erro ao buscar os dados do evento: ', error);
+      throw error;
+    }
+  },
+  async dadosFormaEntrega(forma_entrega) {
+    try {
+      const response = await api.get(`/evento.asp?key=${key}&gmet=5&par1=${forma_entrega}`);
+      return response.data;
+
+    } catch (error) {
+      console.error('Erro ao buscar a forma de entrega: ', error);
+      throw error;
+    }
+  },
 }

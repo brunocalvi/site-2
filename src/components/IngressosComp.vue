@@ -5,7 +5,7 @@
         <div class="col-8 col-md-8">
           <p>Ingresso: {{ categoriaIngresso(ingresso.categoria) }}</p>
           <p class="titulo-ing">{{ ingresso.nome }} - {{ ingresso.num_lote }}º lote</p>
-          <p>{{ gt_moeda }} {{ formatValorSemR(ingresso.valor) }} {{ eve_mostra_taxa == 'S' ? '+ '+formatValorSemR(ingresso.taxa_adm)+' ('+ingresso.eve_label_taxa+')' : '' }}</p>
+          <p>{{ gt_moeda }} {{ formatValor(ingresso.valor, { normalizarVirgula: true }) }} {{ eve_mostra_taxa == 'S' ? '+ '+formatValor(ingresso.taxa_adm, { normalizarVirgula: true })+' ('+ingresso.eve_label_taxa+')' : '' }}</p>
         </div>
 
         <div class="col-4 col-md-4">
@@ -24,9 +24,26 @@
               </svg>
             </b-button>
           </div>
-          
+
           <div class="text-right mt-2 valor-individual">{{ gt_moeda }} {{ valIndividual[ingresso.ite_cod] }}</div>
         </div>
+
+        <template v-if="ingresso.lot_qtde_min != 0 || ingresso.lot_qtde_min != 0">
+          <div>
+            <p class="quant-venda">{{ venda_min_max(ingresso.lot_qtde_min, ingresso.lot_qtde_max) }}</p>
+          </div>
+        </template>
+
+        <div class="area-selec-mesa" v-show="mostraMesa[ingresso.ite_cod]">
+          <select v-model="selectedMesa[ingresso.ite_cod]">
+            <option v-for="option in opcoesMesas[ingresso.ite_cod]" :key="option.value" :value="option.value">{{ option.text }}</option>
+          </select>
+        </div>
+
+        <div v-show="errMesa[ingresso.ite_cod]">
+          <p class="erro-aler">Erro ao localizar a mesa</p>
+        </div>
+        
       </div>
     </div>
   </template>
@@ -35,7 +52,7 @@
 <script>
 import endPointSetorLote from '@/services/endPointSetorLote.js';
 
-import { categoriaIngresso, formatValorSemR } from '@/utils/formDadosEvento.js';
+import { categoriaIngresso, formatValor, venda_min_max } from '@/utils/formDadosEvento.js';
 
 export default {
   props: {
@@ -44,7 +61,7 @@ export default {
     setor_id: Number,
     eve_mostra_taxa: String
   },
-  emits: ['somaTotal'],
+  emits: ['carrinho'],
   data() {
     return {
       val: 0,
@@ -55,6 +72,12 @@ export default {
       valIndividual: {},
       disabledMais: {},
       disabledMenos: {},
+      venda: [],
+      mostraMesa: [],
+      opcoesMesas: [],
+      selectedMesa: {},
+      errMesa: [],
+      max: 10,
     }
   },
   async created() {
@@ -76,50 +99,238 @@ export default {
       this.disabledMenos[id] = true;
     });
   },
+  watch: {
+    selectedMesa: {
+      deep: true,
+      handler(novo) {
+        this.dadosMesaSelect(novo);
+      }
+    }
+  },
   methods: {
     categoriaIngresso,
-    formatValorSemR,
+    formatValor,
+    venda_min_max,
     quantMais(ingresso) {
-      const id = ingresso.ite_cod;
+      let max = this.max;
+      const id = Number(ingresso.ite_cod);
 
-      if (this.valores[id] < 10) {
+      if(this.venda[id] == undefined) {
+        this.venda[id] = {
+          ite_cod: id,
+          valorTot: 0,
+          nome_setor_lote: `${ingresso.setor} - ${ingresso.nome}`,
+          gru_id: Number(ingresso.lot_grupo_estoque),
+          valor: parseFloat(ingresso.valor.toString().replace(',', '.')),
+          taxa_adm: parseFloat(ingresso.taxa_adm.toString().replace(',', '.')),
+          eve_mostra_taxa: this.eve_mostra_taxa,
+          mapa_id: Number(ingresso.mapa_id),
+          aceita_bol: ingresso.lot_aceita_boleto,
+          categoria: ingresso.categoria,
+          lot_cod: Number(ingresso.lot_cod),
+          img_real: ingresso.img_real_ativo2,
+          lot_qtde_min: Number(ingresso.lot_qtde_min),
+          lot_qtde_max: Number(ingresso.lot_qtde_max),
+          assento_parcial: ingresso.assento_parcial,
+          mesa: ingresso.mesa, 
+          qtd: 0,
+          mes_id: 0, 
+          mes_numero: '', 
+          qtd_mesa: 0, 
+        }
+      }
+      
+      if(this.venda[id].lot_qtde_max != 0) max = this.venda[id].lot_qtde_max;
+
+      if(this.venda[id].qtd_mesa != 0) max = this.venda[id].qtd_mesa;
+
+      if(this.venda[id].lot_qtde_min != 0 && this.venda[id].qtd == 0) {
+        this.valores[id] = this.venda[id].lot_qtde_min - 1;
+      }
+
+      if(this.valores[id] < max) {
         this.valores[id]++;
         this.disabledMenos[id] = false;
 
-        const valor = parseFloat(ingresso.valor.toString().replace(',', '.'));
-        const taxa = this.eve_mostra_taxa === 'S' ? parseFloat(ingresso.taxa_adm.toString().replace(',', '.')) : 0;
-        const total = (this.valores[id]) * (valor + taxa);
-
-        this.somaTotalGeral({ tipo: '+', ite_cod: id, valor: valor + taxa });
-
-        this.valIndividual[id] = this.formatValorSemR(total.toFixed(2));
+        this.atualizaValores(id);
       }
 
-      if (this.valores[id] >= 10) {
-        this.disabledMais[id] = true;
-      }
+      if(ingresso.mesa == 'S') this.ajustaMesa(id);
     },
-    quantMenos(ingresso) {
+    async quantMenos(ingresso) {
       const id = ingresso.ite_cod;
-
-      if (this.valores[id] > 0) {
+      //const lot_min = Number(ingresso.lot_qtde_min); 
+      
+      if(this.valores[id] > 0) {
         this.valores[id]--;
-
-        const valor = parseFloat(ingresso.valor.toString().replace(',', '.'));
-        const taxa = this.eve_mostra_taxa === 'S' ? parseFloat(ingresso.taxa_adm.toString().replace(',', '.')) : 0;
-        const total = (this.valores[id]) * (valor + taxa);
-
-        this.somaTotalGeral({ tipo: '-', ite_cod: id, valor: valor + taxa });
-
-        this.valIndividual[id] = this.formatValorSemR(total.toFixed(2));
       }
 
-      this.disabledMais[id] = false;
-      this.disabledMenos[id] = this.valores[id] === 0;
+      //if(this.venda[id].qtd < lot_min) {
+      //  this.valores[id] = 0;  
+      //}
+
+      if(this.venda[id].lot_qtde_min > 0 && this.venda[id].lot_qtde_min == this.venda[id].lot_qtde_max) {
+        this.valores[id] = 0;
+      }
+
+      this.atualizaValores(id);
+
+      if(ingresso.mesa == 'S') this.ajustaMesa(id);  
+
+      if(this.venda[id]?.qtd == 0) {
+        this.disabledMais[id] = false;
+        this.disabledMenos[id] = true;
+
+        delete this.selectedMesa[id];
+        //delete this.venda[id];
+      }
     },
-    somaTotalGeral(value) {
-      this.$emit('somaTotal', value);
-    }
+    async ajustaMesa(id) {
+      const ingresso = this.venda[id];
+
+      let mesa = await endPointSetorLote.configMesaSelect({
+        eve_cod: this.eve_cod,
+        lot_cod: ingresso.lot_cod,
+        assento_parcial: ingresso.assento_parcial, 
+      });
+
+      if(mesa && mesa.length > 0) {
+        this.mostraMesa[id] = ingresso.qtd > 0 ? true : false; 
+
+        let m = [{ value: undefined, text: 'Selecione uma mesa.' }];
+        
+        for(let i = 0; i < mesa.length; i++) {
+          m.push({ value: mesa[i].mes_id, text: mesa[i].mes_numero });
+        }
+
+        this.opcoesMesas[id] = m;
+
+        if(ingresso.qtd > 0 && ingresso.qtd_mesa == 0) {
+          this.disabledMais[id] = true;
+        } else {
+          this.disabledMais[id] = false;
+        }
+      } else {
+        this.disabledMais[id] = true;
+        this.disabledMenos[id] = true;
+
+        this.mostraMesa[id] = false;
+        this.errMesa[id] = true;
+        this.valores[id] = 0;
+        this.valIndividual[id] = '0,00';
+        this.venda[id].qtd = 0;
+
+        this.atualizaValores(id);
+      }
+    },
+    async dadosMesaSelect(dados) {
+      for(let id in dados) {
+        const ingresso = this.venda[id];
+        if (!ingresso) continue;
+
+        if(dados[id] == undefined) {
+          this.valores[id] = 0;
+        }
+
+        const valorSelecionado = Number(dados[id]);
+        const mesaSelecionada = this.opcoesMesas[id]?.find(m => Number(m.value) === valorSelecionado);
+
+        if(mesaSelecionada) {
+          ingresso.mes_id = Number(mesaSelecionada.value);
+          ingresso.mes_numero = mesaSelecionada.text;
+
+          if(ingresso.assento_parcial == 'S') {
+            var qtd = ingresso.mes_numero.split("(");
+            qtd = qtd[1].replace(')', '');
+
+            ingresso.qtd_mesa = Number(qtd);
+          }
+        }
+
+        if(this.valores[id] > ingresso.qtd_mesa) {
+          this.valores[id] = 1;
+        }
+
+        this.atualizaValores(id);
+        this.ajustaMesa(id);
+      }
+    },
+    async verificaIngAdd(id, qtd_base) {
+      const ingressoBase = this.venda[id];
+
+      if(!ingressoBase) return;
+      
+      const loteAdd = await endPointSetorLote.buscaLoteAdicional({ 
+        lot_cod: this.venda[id].lot_cod, 
+        pdv: this.pdv_id, 
+      });
+
+      if(loteAdd?.statusId !== '00') return;
+
+      const ite_cod_add = Number(loteAdd.ite_cod);
+      const prm_quantidade = Number(loteAdd.prm_quantidade) || 0;
+      const qtd_add_total = qtd_base * prm_quantidade;
+
+      this.venda[ite_cod_add] = {
+        ite_cod: ite_cod_add,
+        valorTot: 0,
+        nome_setor_lote: `${loteAdd.setor} - ${loteAdd.lot_nome}`,
+        gru_id: Number(loteAdd.gru_id),
+        valor: parseFloat(loteAdd.ite_valor.toString().replace(',', '.')),
+        taxa_adm: parseFloat(loteAdd.taxa_adm.toString().replace(',', '.')),
+        eve_mostra_taxa: this.eve_mostra_taxa,
+        mapa_id: Number(loteAdd.mapa_id),
+        aceita_bol: loteAdd.lot_aceita_boleto,
+        categoria: loteAdd.categoria,
+        lot_cod: Number(loteAdd.lot_adicional),
+        img_real: 'N',
+        lot_qtde_min: 0,
+        lot_qtde_max: 0,
+        assento_parcial: 'N',
+        mesa: 0, 
+        prm_quantidade: prm_quantidade,
+        qtd: qtd_add_total,
+        mes_id: 0, 
+        mes_numero: '', 
+        qtd_mesa: 0  
+      };
+
+      // Remove do carrinho e emite exclusão
+      if(qtd_base === 0) {
+        delete this.venda[ite_cod_add];
+        this.carrinhoInicial({ ite_cod: ite_cod_add, qtd: 0 }); 
+        return;
+      }
+
+      this.carrinhoInicial(this.venda[ite_cod_add]);
+    },
+    async atualizaValores(id) {
+      if (!this.venda[id]) return;
+
+      let taxa = this.eve_mostra_taxa == 'S' ? this.venda[id].taxa_adm : 0;
+      let totalJson = this.venda[id].valor + taxa;
+      let total = this.valores[id] * (this.venda[id].valor + taxa); 
+
+      let valFormat = this.formatValor(total.toFixed(2)); 
+   
+      this.venda[id].valorTot = Number(totalJson.toFixed(2));
+      this.valIndividual[id] = valFormat;
+
+      this.venda[id].qtd = this.valores[id];
+
+      // sincroniza adicional automaticamente
+      if(this.venda[id].categoria == 'P') {
+        await this.verificaIngAdd(id, this.valores[id]);
+      }
+
+      this.carrinhoInicial(this.venda[id]);
+    },
+    carrinhoInicial(venda) {
+      //console.log(venda);
+
+      if(!venda || !venda.ite_cod) return;
+      this.$emit('carrinho', venda);
+    },
   }
 }
 </script>
@@ -160,6 +371,21 @@ export default {
 .valor-individual {
   margin-right: 1rem;
   user-select: none;
+}
+.quant-venda {
+  text-align: center;
+  color: #fca311;
+  font-size: 13px;
+  font-weight: bold;
+  padding-top: 1rem;
+  font-style: italic;
+}
+.area-selec-mesa {
+  margin-bottom: 15px;
+}
+.erro-aler {
+  color: red;
+  font-weight: 600;
 }
 </style>
 

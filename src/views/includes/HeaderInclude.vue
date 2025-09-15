@@ -35,24 +35,25 @@
           </div>
         </template>
 
-        <div class="area-para-desktop">
-          <router-link to="/area-usuario">
-            <button type="button" class="btn btn-destaq-layo">ÁREA USUÁRIO</button>
-          </router-link>
+        <button class="dropdown-toggle btn-destaq-layo" type="button" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">ÁREA USUÁRIO</button>
 
-          <button type="button" class="btn btn-final-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-justify-right" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-4-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5m0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5m0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5"/>
-            </svg>
-          </button>
-        </div>
+        <ul class="dropdown-menu dropdown-menu-white">
+          <li><router-link class="dropdown-item" to="/area-usuario">Área do usuário</router-link></li>
+          <li><router-link class="dropdown-item" to="/compras">Meus Ingressos</router-link></li>
+          <li><router-link class="dropdown-item" to="/" @click="sairUsuario()">Finalizar Sessão</router-link></li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+          <li><router-link class="dropdown-item" to="/login">Login</router-link></li>
+          <li><router-link class="dropdown-item" to="/cadastro">Cadastre-se</router-link></li>
+        </ul>  
       </div>
     </div>
   </nav>
 </template>
 
 <script>
-
+import auth from '@/store/auth.js';
 
 export default {
   data() {
@@ -63,11 +64,17 @@ export default {
   },
   created() {
     this.pathProd = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_PUBLIC_PATH : '/';
+  },
+  methods: {
+    sairUsuario() {
+      auth.logout();
+      this.$router.push('/login');
+    }
   }
 }
 </script>
 
-<style>
+<style scoped>
 .btn-destaq-layo {
   background: var(--segunda-cor);
   color: #ffffff;
@@ -132,5 +139,19 @@ export default {
   background: #ffffff;
   padding-left: 20px;
   padding-right: 20px;
+}
+.dropdown-menu-white {
+  width: 200px;
+  right: 3rem;
+  left: auto;
+}
+@media(max-width: 900px) {
+  .btn-destaq-layo {
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 9px;
+  }
 }
 </style>

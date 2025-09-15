@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { pegaIP } from '@/services/capturaIpMaquina.js';
 
+import infoUsuario from './infoUsuario.js';
+
 export default {
   async login(email, senha) {
     email.trim();
@@ -29,19 +31,18 @@ export default {
         if(response.data.token != undefined) {
           sessionStorage.setItem('token', response.data.token); 
         } else {
-          return response.data;
+          return `SIS-GW862545 : ${response.data.statusMsg}`;
         }
         
         return true;
 
-      } catch (e) {
-        return 'SIT-E616652 : '.e;
-      }
+      } catch (e) { return e; }
     } else {
       return err;
     }
   },
   logout() {
     sessionStorage.removeItem('token');
+    infoUsuario.limpar();
   }
 }

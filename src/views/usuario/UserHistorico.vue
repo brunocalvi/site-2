@@ -10,8 +10,7 @@
               <MenuAreaUsuario 
                 :email="usuario.email" 
                 :nome="usuario.nome" 
-                :id="usuario.id" 
-                @openModal="openModal"
+                :id="Number(usuario.id)" 
                 :btnImagem="false"
               ></MenuAreaUsuario>
           </template>

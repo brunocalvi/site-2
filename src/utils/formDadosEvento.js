@@ -108,7 +108,7 @@ export function ajustaDataCard(eve_inicio, lista_datas) {
   return ''; // Retorno padrão caso nenhuma condição seja atendida
 }
 
-export function formatValor(value) {
+/*export function formatValor(value) {
   let val = value.replace(/,/g, '.');
 
   return new Intl.NumberFormat('pt-BR', {
@@ -130,6 +130,25 @@ export function formatValorBR(value) {
   let numero = Number(value);
 
   if(Math.abs(numero) < 0.005) numero = 0;
+
+  return new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numero);
+}*/
+
+export function formatValor(value, { normalizarVirgula = false } = {}) {
+  let numero = value;
+
+  // Se for string e precisar normalizar vírgulas
+  if (normalizarVirgula && typeof numero === 'string') {
+    numero = numero.replace(/,/g, '.');
+  }
+
+  numero = Number(numero);
+
+  // Evita exibir -0,00 ou 0,00 quando o número é muito pequeno
+  if (Math.abs(numero) < 0.005) numero = 0;
 
   return new Intl.NumberFormat('pt-BR', {
     minimumFractionDigits: 2,
@@ -200,6 +219,21 @@ export function colecaoData($value) {
 
   return dadosOrganizados;
 }
+
+export function venda_min_max(min, max) {
+  if(min > 0 && max == 0) {
+    return `Esse ingresso tem venda mínima de ${min} unidades`;
+
+  } else if ((min > 0 & max > 0) && min == max) {
+    return `Esse ingresso tem venda obrigatória de ${max} unidades`;
+
+  } else if (min > 0 && max > 0) {
+    return `Esse ingresso tem venda mínima de ${min} unidades e venda máxima de ${max} unidades`;
+
+  } else if(max > 0 && min == 0) {
+    return `Esse ingresso tem venda máxima de ${max} unidades`;
+  }
+} 
 
 
 
