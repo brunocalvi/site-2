@@ -255,4 +255,7 @@ export default {
   color: #4c576c;
   margin-bottom: 4px;
 }
+.dashboard-content__input {
+  margin-top: 10px;
+}
 </style>

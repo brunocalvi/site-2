@@ -37,21 +37,23 @@ export function preparaTituloLink(eve_nome) {
 
 export function revisaLogoEvento(logo) {
   let path = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_PUBLIC_PATH : '/';
+  let img = logo; 
 
   if(!logo || logo.includes('/imagem/logo/')) {
-    logo = `${path}img/default.jpg`;
+    img = `${path}img/default.jpg`;
   }
-  
-  return logo;
+
+  return img;
 }
 
 export function diaSemana(eve_inicio) {
-  const data_inicio = eve_inicio.split("/");
-  const eve_inicio_tratado = `${data_inicio[2]}-${data_inicio[1]}-${data_inicio[0]}`;
-  const dias = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira", "Sexta-Feira", "Sábado", "Domingo"];
-  const data = new Date(eve_inicio_tratado);
-  const diaSemana = data.getDay();
-  return dias[diaSemana];
+  const [dia, mes, ano] = eve_inicio.split("/").map(Number);
+
+  // cria data no formato correto (ano, mês-1, dia)
+  const data = new Date(ano, mes - 1, dia);
+  const dias = ["Domingo","Segunda-Feira","Terça-Feira","Quarta-Feira","Quinta-Feira","Sexta-Feira","Sábado"];
+
+  return dias[data.getDay()];
 }
 
 export function mesAbreviado(mes) {

@@ -1,0 +1,72 @@
+#modalAssento {
+  position: fixed;
+  transform: translate(11%, 130%);
+  background-color: #fff;
+  border-top: 5px solid green;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 5;
+  border-radius: 5px 5px 0px 0px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.statusAssento {
+  width: 100%;
+  position: absolute;
+  text-align: center;
+  padding: 5px;
+  border-radius: 0px 0px 5px 5px;
+}
+.infoAssento p {
+  margin: 5px 10px;
+  text-align: center;
+}
+.assento-livre {
+  background-color: green;
+  color: #fff;
+}
+.assento-ocupado {
+  background-color: red;
+  color: #fff;
+}
+.assento-selecionado {
+  background-color: #E6CAC4;
+  color: #fff;
+}
+.btn-rodape-rot {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  background-color: #fff;
+  padding: 2px 10px;
+  -webkit-box-shadow: 0 5px 50px -1px rgba(0, 0, 0, .2);
+  box-shadow: 0 5px 50px -1px rgba(0, 0, 0, .2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.btn-rodape-rot .btn-danger {
+  width: 120px;
+  margin: 10px;
+}
+.toqueCelular {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: 99;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+}
+.toqueCelular img {
+  width: 132px;
+}
+.toqueCelular h3 {
+  color: #fff;
+  font-weight: 600;
+  margin: 3px;
+}
+.area-zoom-vue {
+  height: 100vh;
+  width: 100%;
+}

@@ -56,4 +56,13 @@ export default {
       throw error;
     }
   },
+  async setorLoteGmet3(lote) {
+    try {
+      const response = await api.get(`/setorlote.asp?key=${key}&gmet=3&&par2=${lote}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao verifica Setor Lote 3:', error);
+      throw error;
+    }
+  },
 };

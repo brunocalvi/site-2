@@ -535,7 +535,7 @@ ul {
   margin: 0px auto;
 }
 .Btn-edit-ing {
-  width: 110px;
+  width: 120px;
   height: 35px;
   display: flex;
   align-items: center;
@@ -550,7 +550,7 @@ ul {
   float: inline-end;
 }
 .Btn-edit-ing .text {
-  width: 65%;
+  width: 95%;
   height: 100%;
   display: flex;
   align-items: center;

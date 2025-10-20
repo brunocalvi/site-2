@@ -3,6 +3,7 @@ import App from './App.vue';
 import './registerServiceWorker';
 import router from './router';
 import { createPinia } from 'pinia';
+import persistedState from 'pinia-plugin-persistedstate';
 
 // Bootstrap Vue
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,6 +18,8 @@ import 'aos/dist/aos.css';
 
 const app = createApp(App);
 const pinia = createPinia();
+
+pinia.use(persistedState);
 
 app.use(router);
 app.use(pinia);

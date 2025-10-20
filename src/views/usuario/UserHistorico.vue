@@ -52,7 +52,7 @@
                         </a>
                       </template>
 
-                      <template v-if="gt_reembolso == 'S' & item.compra.status != 'CA'">
+                      <template v-if="gt_reembolso == 'S' & item.compra.status == 'PG'">
                         <router-link :to="{ name: 'cancelar', params: { pag_id: item.trn }}">
                           <button type="button" class="btn btn-danger">Cancelar</button>
                         </router-link>

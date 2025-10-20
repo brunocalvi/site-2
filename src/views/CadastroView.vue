@@ -603,8 +603,7 @@ export default {
 
       if(err == undefined || err == '') {
         let fim = await endPointUsuario.cadastrarUsuario(this.form);
-        console.log(fim);
-
+ 
         this.retorno = fim.resposta;
         this.usu_ativo = fim.usu_ativo;
 

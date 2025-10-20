@@ -75,10 +75,11 @@ import crypto from '@/store/cryptoLembrar.js';
 
 import { dadosUsuario } from "@/services/dadosUsuario.js";
 
-import infoUsuario from "@/store/infoUsuario.js";
+import { infoUsuarioStore } from '@/store/infoUsuario.js';
 
 import HeaderInclude from "@/views/includes/HeaderInclude.vue";
 import FooterInclude from "@/views/includes/FooterInclude.vue";
+
 import Alert from "@/components/alerts/AlertAcao.vue";
 
 export default {
@@ -93,6 +94,7 @@ export default {
       retorno: undefined,
       salvaLogin: false,
       usuario: {},
+      infoUsuario: infoUsuarioStore(), 
     }
   },
   watch: {
@@ -133,19 +135,22 @@ export default {
       try {
         let resposta = await auth.login(this.email, this.senha);
 
-        if(resposta == true) {
+        if(resposta.statusId == '00') {
+          if(resposta.nacionalidade == 'BRA') {
+            sessionStorage.setItem('sessionId', resposta.cpf);
+          } else {
+            sessionStorage.setItem('sessionId', resposta.passaporte);
+          }
 
           this.usuario = await dadosUsuario();
-          infoUsuario.salvar(this.usuario);
+          this.infoUsuario.salvar(this.usuario);
 
-          this.$router.push('/area-usuario');
-
+          this.$router.push('/area-usuario'); 
         } else {
           this.retorno = resposta;
         }
       } catch(e) {
         console.error(e);
-
       }
     }
   },

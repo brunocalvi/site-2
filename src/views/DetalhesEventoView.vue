@@ -187,7 +187,13 @@ export default {
       });
 
       if(this.eve_cod != eve_cods.toString()) {
-        this.$router.push({ name: 'detalhes_evento', params: { eve_cod: eve_cods.toString(), eve_nome: this.preparaTituloLink(this.dadosEvento.nome) } }); 
+        this.$router.push({ 
+          name: 'detalhes_evento', 
+          params: { 
+            eve_cod: eve_cods.toString(), 
+            eve_nome: this.preparaTituloLink(this.dadosEvento.nome) 
+          } 
+        }); 
         return;
       }
 

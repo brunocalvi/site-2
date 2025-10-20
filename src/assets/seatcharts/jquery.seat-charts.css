@@ -1,0 +1,104 @@
+div.seatCharts-cell {
+	height: 16px;
+	width: 16px;
+	margin: 3px;
+	float: left;
+	text-align: center;
+	outline: none;
+	font-size: 13px;
+	line-height:16px;
+	color: blue;
+}
+div.seatCharts-seat {
+	background-color: green;
+	color: white;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	cursor: default;
+}
+div.seatCharts-seat:focus {
+	border: none;
+}
+div.seatCharts-space {
+	background-color: white;
+}
+div.seatCharts-row {
+	height: 50px;
+}
+div.seatCharts-row:after {
+	clear: both;
+}
+div.seatCharts-seat.selected {
+	background-color: aqua;
+}
+div.seatCharts-seat.focused {
+	background-color: #6db131;
+}
+div.seatCharts-seat.available {
+	background-color: green;
+}
+div.seatCharts-seat.unavailable {
+	background-color: red;
+	cursor: not-allowed;
+}
+ul.seatCharts-legendList {
+	list-style: none;
+}
+li.seatCharts-legendItem {
+	margin-top: 10px;
+	line-height: 2;
+}
+div.seatCharts-row {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  height: 21px;
+}
+div.seatCharts-cell {
+  color: #182C4E;
+  text-align: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+div.seatCharts-seat {
+  color: #FFFFFF;
+  cursor: pointer;	
+}
+.seatCharts-legendList {
+  margin-bottom: 0px;
+}
+div.seatCharts-cell {
+	color: #182C4E;
+  text-align: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+}
+div.seatCharts-seat {
+	color: #FFFFFF;
+	cursor: pointer;	
+}
+div.seatCharts-row {
+	height: 21px;
+}
+div.seatCharts-seat.available {
+	background-color: black;
+}
+div.seatCharts-seat.available.first-class {
+	background-color: green;
+}
+div.seatCharts-seat.focused {
+	background-color: #76B474;
+	}
+div.seatCharts-seat.selected {
+	background-color: #E6CAC4;
+}
+div.seatCharts-seat.unavailable {
+	background-color: red;
+}
+.economy-class {
+  background-color: black !important;
+}

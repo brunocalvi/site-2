@@ -59,8 +59,8 @@
 
 <script>
 import auth from "@/store/auth.js";
-import guardaIngressos from '@/store/guardaIngressos.js';
-import infoUsuario from "@/store/infoUsuario.js";
+import { guardaIngressoStore } from '@/store/guardaIngressos.js';
+import { infoUsuarioStore } from '@/store/infoUsuario.js';
 
 import { dadosUsuario } from "@/services/dadosUsuario.js";
 
@@ -75,23 +75,20 @@ export default {
   data() {
     return {
       usuario: {},
-      //email: 'bruno.calvi@adaltech.com.br',
-      //senha: 'L11a17l71@',
       email: '',
       senha: '',
       inputType: 'password',
       retorno: undefined,
+      ingressos: guardaIngressoStore(),
+      infoUsuario: infoUsuarioStore(), 
     }
   },
-  created() {
-    const ing = guardaIngressos.getAll();
-    const user = infoUsuario.get();
-
-    if(Object.keys(ing).length === 0) {
+  async created() {
+    if(Object.keys(this.ingressos.getAll()).length === 0) {
       this.$router.push('/');
     }
 
-    if(Object.keys(user).length !== 0) {
+    if(Object.keys(this.infoUsuario.get()).length !== 0) {
       this.$router.push('/checkout');
     }
   },
@@ -106,14 +103,17 @@ export default {
       try {
         let resposta = await auth.login(this.email, this.senha);
 
-        if(resposta == true) {
-          this.retorno = undefined;
+        if(resposta.statusId == '00') {
+          if(resposta.nacionalidade == 'BRA') {
+            sessionStorage.setItem('sessionId', resposta.cpf);
+          } else {
+            sessionStorage.setItem('sessionId', resposta.passaporte);
+          }
 
           this.usuario = await dadosUsuario();
-          infoUsuario.salvar(this.usuario);
+          this.infoUsuario.salvar(this.usuario);
 
-          this.$router.push('/checkout');
-
+          this.$router.push('/checkout'); 
         } else {
           this.retorno = resposta;
         }

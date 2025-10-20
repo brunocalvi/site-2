@@ -23,8 +23,9 @@ export default {
       }
       
     } catch (error) {
-      console.error('Erro ao buscar os campos nominais: ', error);
-      throw error;
+      //console.error('Erro ao buscar os campos nominais: ', error);
+      //throw error;
+      return undefined;
     }
   },
   async inputNominal(data) {
@@ -78,6 +79,36 @@ export default {
 
     } catch (error) {
       console.error('Erro ao buscar a forma de entrega: ', error);
+      throw error;
+    }
+  },
+  async restricaoCpfMeia(data) {
+    try {
+      const response = await api.get(`/evento.asp?key=${key}&gmet=4&par1=${data.eve_cod}&par2=${data.user_id}&par3=${data.list_qtd_ing}&par4=${data.list_ite_cod}`);
+      return response.data;
+
+    } catch (error) {
+      console.error('Erro ao consultar restrição de cpf e meia: ', error);
+      throw error;
+    }
+  },
+  async restricaoCpfitemLote(data) {
+    try {
+      const response = await api.get(`/evento.asp?key=${key}&gmet=8&par1=${data.eve_cod}&par2=${data.user_id}&par3=${data.list_ite_cod}&par4=${data.list_qtd_ing}`);
+      return response.data;
+
+    } catch (error) {
+      console.error('Erro ao consultar restrição de cpf e item code: ', error);
+      throw error;
+    }
+  },
+  async restricaoPreCadastro(data) {
+    try {
+      const response = await api.get(`/evento.asp?key=${key}&gmet=12&par1=${data.eve_cod}&par2=${data.user_id}`);
+      return response.data;
+
+    } catch (error) {
+      console.error('Erro ao verificar o Pre Cadastro: ', error);
       throw error;
     }
   },

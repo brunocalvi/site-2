@@ -145,7 +145,7 @@ import endPointSetorLote from '@/services/endPointSetorLote.js';
 
 import { revisaLogoEvento, mesCompleto, formatValor } from '@/utils/formDadosEvento.js';
 import validacoesIngressos from '@/store/validacoesIngressos.js';
-import guardaIngressos from '@/store/guardaIngressos.js';
+import { guardaIngressoStore } from '@/store/guardaIngressos.js';
 
 export default {
   components: {
@@ -168,14 +168,15 @@ export default {
       infoIngresso: [],
       retorno: undefined,
       logo: '',
+      guardaIngressos: guardaIngressoStore(),
       //dadosValidacao: guardaIngressos.state.dadosValidacao
     }
   },
   async created() {
     const config = this.$route.meta.config;
     const pdv_id = sessionStorage.getItem('pdv_id');
-    this.eve_cod = this.$route.params.eve_cod; 
-
+    this.eve_cod = this.$route.params.eve_cod;
+    
     if(pdv_id != undefined || pdv_id != null) {
       this.pdv_id = pdv_id; 
     }
@@ -271,11 +272,11 @@ export default {
       }
 
       if(this.selected == null) {
-        err = "SIT-MW701511 : É obrigatório selecionar uma forma de entrega.";
+        err = "SIT-MW701511 : É necessário selecionar uma forma de entrega.";
       }
 
       if(Object.keys(this.infoIngresso).length === 0) {
-        err = "SIT-CS164439 : É obrigatório selecionar um ingresso.";
+        err = "SIT-CS164439 : É necessário selecionar um ingresso para continuar.";
       }
 
       let validIng = await validacoesIngressos.dadosIngressos(this.infoIngresso);
@@ -300,8 +301,8 @@ export default {
       if(err == undefined) {
         this.retorno = undefined;
 
-        //guardaIngressos.salvar(this.eve_cod, {
-        guardaIngressos.salvar({
+        this.guardaIngressos.salvar(this.eve_cod, {
+        //this.guardaIngressos.salvar({
           pdv_id: Number(this.pdv_id),
           logo: this.logo,
           form_entrega: form_entrega, 
@@ -322,9 +323,58 @@ export default {
           forma_ent_valor: Number(entrega.valor),
           forma_ent_descricao: entrega.descricao,
           ingresso: this.infoIngresso, 
+          desconto: {},
         });
 
-        this.$router.push('/validacao');
+        // monta url para o mapa se tiver --------------
+        let lista_qtde = [];
+        let lista_lote = [];
+        let mapa_id = 0;
+        let tot_ing = 0;
+        let img_real = 'N';
+
+        let ingressosMap = this.guardaIngressos.getIngresso(this.eve_cod);
+
+        for(let ing in ingressosMap) {
+          if(ingressosMap[ing].mapa_id != 0) {
+            lista_qtde.push(ingressosMap[ing].qtd);
+            lista_lote.push(ingressosMap[ing].ite_cod);
+            mapa_id = ingressosMap[ing].mapa_id;
+            img_real = ingressosMap[ing].img_real; 
+            tot_ing += ingressosMap[ing].qtd;
+          } 
+        }
+
+        if(mapa_id != 0 && img_real == 'S') {
+          this.$router.push({
+            path: '/mapa_img_real',
+            query: {
+              map_id: mapa_id,
+              eve_cod: this.eve_cod,
+              lista_lote: lista_lote.toString(),
+              tot_ing: tot_ing,
+              lista_qtde: lista_qtde.toString(),
+              pdv_id: this.pdv_id,
+            }
+          });
+
+        } else if (mapa_id != 0 && img_real == 'N') {
+          this.$router.push({
+            path: '/form_mapa',
+            query: {
+              map_id: mapa_id,
+              eve_cod: this.eve_cod,
+              lista_lote: lista_lote.toString(),
+              tot_ing: tot_ing,
+              lista_qtde: lista_qtde.toString(),
+              pdv_id: this.pdv_id,
+            }
+          });
+
+        } else {
+          this.$router.push('/validacao');
+
+        }
 
       } else {
         this.retorno = err;

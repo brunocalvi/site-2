@@ -1,51 +1,67 @@
 <template>
   <template v-for="ingresso in ingressos" :key="ingresso.ite_cod">
-    <div class="container area-ingre-ind">
-      <div class="row">
-        <div class="col-8 col-md-8">
-          <p>Ingresso: {{ categoriaIngresso(ingresso.categoria) }}</p>
-          <p class="titulo-ing">{{ ingresso.nome }} - {{ ingresso.num_lote }}º lote</p>
-          <p>{{ gt_moeda }} {{ formatValor(ingresso.valor, { normalizarVirgula: true }) }} {{ eve_mostra_taxa == 'S' ? '+ '+formatValor(ingresso.taxa_adm, { normalizarVirgula: true })+' ('+ingresso.eve_label_taxa+')' : '' }}</p>
+    <template v-if="ingresso.esgotado == 'S'">
+      <div class="container area-ingre-ind">
+        <div class="row text-esgo-ing">
+          <h4>ESGOTADO</h4>
+          <p>{{ ingresso.nome }} - {{ ingresso.num_lote }}º lote</p>
         </div>
-
-        <div class="col-4 col-md-4">
-          <div class="area-val-btns">
-            <b-button variant="secondary" class="btn-mm-cont" :disabled="disabledMenos[ingresso.ite_cod]" @click="quantMenos(ingresso)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
-                <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8"/>
-              </svg>
-            </b-button>
-
-            <input type="text" :value="valores[ingresso.ite_cod]" class="input-value" readonly>
-
-            <b-button variant="secondary" class="btn-mm-cont" :disabled="disabledMais[ingresso.ite_cod]" @click="quantMais(ingresso)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-              </svg>
-            </b-button>
-          </div>
-
-          <div class="text-right mt-2 valor-individual">{{ gt_moeda }} {{ valIndividual[ingresso.ite_cod] }}</div>
-        </div>
-
-        <template v-if="ingresso.lot_qtde_min != 0 || ingresso.lot_qtde_min != 0">
-          <div>
-            <p class="quant-venda">{{ venda_min_max(ingresso.lot_qtde_min, ingresso.lot_qtde_max) }}</p>
-          </div>
-        </template>
-
-        <div class="area-selec-mesa" v-show="mostraMesa[ingresso.ite_cod]">
-          <select v-model="selectedMesa[ingresso.ite_cod]">
-            <option v-for="option in opcoesMesas[ingresso.ite_cod]" :key="option.value" :value="option.value">{{ option.text }}</option>
-          </select>
-        </div>
-
-        <div v-show="errMesa[ingresso.ite_cod]">
-          <p class="erro-aler">Erro ao localizar a mesa</p>
-        </div>
-        
       </div>
-    </div>
+    </template>
+
+    <template v-else>
+      <div class="container area-ingre-ind">
+        <div class="row">
+          <div class="col-8 col-md-8">
+            <p>Ingresso: {{ categoriaIngresso(ingresso.categoria) }}</p>
+            <p class="titulo-ing">{{ ingresso.nome }} - {{ ingresso.num_lote }}º lote</p>
+            <p>
+              {{ gt_moeda }} {{ formatValor(ingresso.valor, { normalizarVirgula: true }) }} 
+              {{ eve_mostra_taxa == 'S' ? '+ '+formatValor(ingresso.taxa_adm, { normalizarVirgula: true }) : '' }}
+              {{ ingresso.eve_label_taxa.length > 0 ? '('+ingresso.eve_label_taxa+')' : '' }}
+            </p>
+          </div>
+
+          <div class="col-4 col-md-4">
+            <div class="area-val-btns">
+              <b-button variant="secondary" class="btn-mm-cont" :disabled="disabledMenos[ingresso.ite_cod]" @click="quantMenos(ingresso)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
+                  <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8"/>
+                </svg>
+              </b-button>
+
+              <input type="text" :value="valores[ingresso.ite_cod]" class="input-value" readonly>
+
+              <b-button variant="secondary" class="btn-mm-cont" :disabled="disabledMais[ingresso.ite_cod]" @click="quantMais(ingresso)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                </svg>
+              </b-button>
+            </div>
+
+            <div class="text-right mt-2 valor-individual">{{ gt_moeda }} {{ valIndividual[ingresso.ite_cod] }}</div>
+          </div>
+
+          <template v-if="ingresso.lot_qtde_min != 0 || ingresso.lot_qtde_min != 0">
+            <div>
+              <p class="quant-venda">{{ venda_min_max(ingresso.lot_qtde_min, ingresso.lot_qtde_max) }}</p>
+            </div>
+          </template>
+
+          <div class="area-selec-mesa" v-show="mostraMesa[ingresso.ite_cod]">
+            <select v-model="selectedMesa[ingresso.ite_cod]">
+              <option v-for="option in opcoesMesas[ingresso.ite_cod]" :key="option.value" :value="option.value">{{ option.text }}</option>
+            </select>
+          </div>
+
+          <div v-show="errMesa[ingresso.ite_cod]">
+            <p class="erro-aler">Erro ao localizar a mesa</p>
+          </div>
+          
+        </div>
+      </div>
+    </template>
+    
   </template>
 </template>
 
@@ -292,7 +308,7 @@ export default {
         qtd: qtd_add_total,
         mes_id: 0, 
         mes_numero: '', 
-        qtd_mesa: 0  
+        qtd_mesa: 0, 
       };
 
       // Remove do carrinho e emite exclusão
@@ -386,6 +402,22 @@ export default {
 .erro-aler {
   color: red;
   font-weight: 600;
+}
+.text-esgo-ing h4 {
+  font-family: 'Lato', sans-serif;
+  color: #d43f3a;
+  font-size: 18px;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+.text-esgo-ing p {
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  line-height: 23px;
+  color: #707070;
+  text-align: center;
 }
 </style>
 

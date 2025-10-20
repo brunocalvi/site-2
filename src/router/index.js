@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { createRouter, createWebHistory  } from 'vue-router';
+import { guardaIngressoStore } from '@/store/guardaIngressos.js';
 
 const routes = [
   {
@@ -100,7 +101,34 @@ const routes = [
     component: () => import('@/views/CheckoutView.vue'),
     beforeEnter: endPointConfi,
     meta: { requiresAuthComp: true },
-
+  },
+  {
+    path: '/confirmacao/:retorno_sis',
+    name: 'confirmacao',
+    component: () => import('@/views/ConfirmacaoView.vue'),
+    beforeEnter: endPointConfi,
+    meta: { requiresAuthComp: true },
+  },
+  {
+    //path: '/form_mapa/:map_id/:eve_cod/:lista_lote/:tot_ing/:lista_qtde/:pdv_id',
+    path: '/form_mapa',
+    name: 'formMapa',
+    component: () => import('@/views/formMapa.vue'),
+    beforeEnter: endPointConfi,
+  },
+  {
+    //path: '/mapa_img_real/:map_id/:eve_cod/:lista_lote/:tot_ing/:lista_qtde/:pdv_id',
+    path: '/mapa_img_real',
+    name: 'mapaImgReal',
+    component: () => import('@/views/mapaImgReal.vue'),
+    beforeEnter: endPointConfi,
+  },
+  {
+    //path: '/mapa_img_real/:map_id/:eve_cod/:lista_lote/:tot_ing/:lista_qtde/:pdv_id',
+    path: '/cart',
+    name: 'pag_carrinho',
+    component: () => import('@/views/CartView.vue'),
+    meta: { requiresAuthComp: true },
   },
 ]
 
@@ -132,26 +160,46 @@ async function endPointConfi(to, from, next) {
 
 // Proteção de rota
 router.beforeEach(async (to, from, next) => {
-  const token = sessionStorage.getItem('token');
+  const sessionId = sessionStorage.getItem('sessionId');
+  const ingressos = guardaIngressoStore();
 
-  if (to.meta.requiresAuth || to.meta.requiresAuthComp) {
-    if (!token && to.meta.requiresAuth) {
+  if(to.meta.requiresAuth == true || to.meta.requiresAuthComp == true) {
+
+    if(sessionId == null && to.meta.requiresAuth) {
+      //console.log('Entrou no 1');
       return next('/login');
     }
 
-    if(!token && to.meta.requiresAuthComp) {
+    if(to.meta.requiresAuthComp && Object.keys(ingressos.getAll()).length === 0) {
+      //console.log('Entrou no 2');
       return next('/');
     }
 
     try {
-      const site = process.env.VUE_APP_URL_SITE;
-      await axios.get(`${site}api/usuario.php?token=${sessionStorage.getItem('token')}`);
-      next(); 
+      let cpf = '';
+      let passaporte = '';
+      let sessionId = sessionStorage.getItem('sessionId');
 
+      const link = process.env.VUE_APP_LINK_SISTEMA;
+      const key = process.env.VUE_APP_WS_KEY;
+
+      if(sessionId.length == 11) {
+        cpf = sessionId;
+      } else {
+        passaporte = sessionId;
+      }
+
+      const res = await axios.get(`${link}/ws/geral/usuario.asp?key=${key}&gmet=4&par1=${cpf}&par2=${passaporte}`);
+
+      if(res.data.statusId == '00') { 
+        //console.log('Passou ...');
+        next(); 
+      }
+       
     } catch (error) {
       //console.warn('Token inválido ou expirado:', error);
       //console.error('Token inválido ou expirado');
-      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('sessionId');
       next('/login');
     }
   } else {
