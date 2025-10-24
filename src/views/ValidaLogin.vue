@@ -43,14 +43,41 @@
       <div class="col-md-12 centralize-entre">
         <div class="hs_blog_cont_heading_wrapper">
           <h5 class="fazer-cadastro text-center">
-            <router-link class="nav-link" to="/cadastro">
-              <span>Você ainda não tem uma conta?</span> 
-              <b>Cadastre-se <i class="fa fa-long-arrow-right"></i></b>
-            </router-link>
+            <template v-if="gt_cad_reduzido == 'N'">
+              <router-link class="nav-link" to="/cadastro">
+                <span>Você ainda não tem uma conta?</span> 
+                <b>Cadastre-se <i class="fa fa-long-arrow-right"></i></b>
+              </router-link>
+            </template>
+
+            <template v-else>
+              <div class="nav-link" data-bs-toggle="modal" data-bs-target="#modalCadastroV">
+                <span>Você ainda não tem uma conta?</span> 
+                <b>Cadastre-se <i class="fa fa-long-arrow-right"></i></b>
+              </div>
+            </template> 
           </h5>
         </div>
       </div>
                           
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalCadastroV" tabindex="-1" aria-labelledby="modalCadastroVLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="modalCadastroVLabel">Cadastre-se agora!</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -81,6 +108,7 @@ export default {
       retorno: undefined,
       ingressos: guardaIngressoStore(),
       infoUsuario: infoUsuarioStore(), 
+      gt_cad_reduzido: 'N',
     }
   },
   async created() {
@@ -91,6 +119,9 @@ export default {
     if(Object.keys(this.infoUsuario.get()).length !== 0) {
       this.$router.push('/checkout');
     }
+
+    const config = this.$route.meta.config;
+    this.gt_cad_reduzido = config.gt_cad_reduzido;
   },
   methods: {
     viewSenha() {

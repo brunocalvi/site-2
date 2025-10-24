@@ -207,8 +207,10 @@ export default {
       // limpa var para organizar valores
       this.ingressos = [];
       this.qtdCarrinho = 0;
-
-      console.log(eventos);
+      this.subTotal = 0;
+      this.valorTaxas = 0;
+      this.valorDesconto = 0; 
+      this.valorTotal = 0;
 
       for(const id in eventos) {
         for(const i in eventos[id].ingresso) {

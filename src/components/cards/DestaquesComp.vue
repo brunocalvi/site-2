@@ -1,40 +1,48 @@
 <template>
-  <Swiper :navigation="true" :modules="modules" :breakpoints="responsiveSettings">
-    <SwiperSlide v-for="destaque in destaques" :key="destaque.codigo">
-      <div class="item prs_feature_slider_item_wrapper">
-        <router-link 
-          :to="{ name: pagina(destaque.lista_eventos), 
-          params: { 
-            eve_cod: codigoEvento(destaque.codigo, destaque.lista_eventos), 
-            eve_nome: preparaTituloLink(destaque.nome) 
-          }}">
+  <template v-if="destaqueVazio == false">
+    <Swiper :navigation="true" :modules="modules" :breakpoints="responsiveSettings">
+      <SwiperSlide v-for="destaque in destaques" :key="destaque.codigo">
+        <div class="item prs_feature_slider_item_wrapper">
+          <router-link 
+            :to="{ name: pagina(destaque.lista_eventos), 
+            params: { 
+              eve_cod: codigoEvento(destaque.codigo, destaque.lista_eventos), 
+              eve_nome: preparaTituloLink(destaque.nome) 
+            }}">
 
-          <div class="prs_feature_img_box_wrapper">
-            <div class="prs_feature_img">
-              <img :src="revisaLogoEvento(destaque.logo)" :alt="destaque.nome" class="img-emphasis">
-            </div>
-
-            <div class="prs_feature_img_cont ajust-info">
-              <h2>{{ destaque.nome }}</h2>
-              <div class="prs_ft_small_cont_left">
-                <p>{{ ajustaDataCard(destaque.data, destaque.lista_datas) }}</p>
-                <hr/>
+            <div class="prs_feature_img_box_wrapper">
+              <div class="prs_feature_img">
+                <img :src="revisaLogoEvento(destaque.logo)" :alt="destaque.nome" class="img-emphasis">
               </div>
 
-              <ul>
-                <li>
-                  <p class="fist-upper">{{ destaque.local }}</p>
-                  <p class="fist-upper">{{ destaque.cidade }}, {{ destaque.estado }}</p>
-                </li>
-                <li><p>{{ destaque.horario }}</p></li>
-              </ul>
-            </div>
-          </div>
+              <div class="prs_feature_img_cont ajust-info">
+                <h2>{{ destaque.nome }}</h2>
+                <div class="prs_ft_small_cont_left">
+                  <p>{{ ajustaDataCard(destaque.data, destaque.lista_datas) }}</p>
+                  <hr/>
+                </div>
 
-        </router-link>
-      </div> 
-    </SwiperSlide>
-  </Swiper>
+                <ul>
+                  <li>
+                    <p class="fist-upper">{{ destaque.local }}</p>
+                    <p class="fist-upper">{{ destaque.cidade }}, {{ destaque.estado }}</p>
+                  </li>
+                  <li><p>{{ destaque.horario }}</p></li>
+                </ul>
+              </div>
+            </div>
+
+          </router-link>
+        </div> 
+      </SwiperSlide>
+    </Swiper>
+  </template>
+
+  <template v-else>
+    <div class="alerta-encontrou-nada">
+      <p>Nenhum evento em destaque no momento!</p>
+    </div>
+  </template>
 </template>
 
 <script>
@@ -65,6 +73,7 @@ export default {
       key: process.env.VUE_APP_WS_KEY,
       pdv: process.env.VUE_APP_PDV_SITE,
       gmet: this.tipoGmet(),
+      destaqueVazio: false,
       responsiveSettings: {
         '640': {
           slidesPerView: 1,
@@ -85,6 +94,8 @@ export default {
     axios.get(`${this.link}ws/geral/evento.asp?key=${this.key}&gmet=${this.gmet}&par1=&par2=${this.pdv}&par3=S`)
     .then((res) => {
       this.destaques = res.data.Lista || [];
+      this.destaqueVazio = this.destaques.length == 0 ? true: false;
+
     }).catch((e) => {
       console.error(e);
     });
@@ -123,6 +134,16 @@ export default {
 </script>
 
 <style>
+.alerta-encontrou-nada p {
+  font-weight: 400;
+  color: #4c576c;
+  margin-bottom: 4px;
+  text-align: center;
+  height: 10vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .prs_feature_img {
   text-align: center;
   -webkit-border-top-left-radius: 10px;

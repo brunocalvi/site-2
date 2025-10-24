@@ -94,6 +94,7 @@ const routes = [
     path: '/validacao',
     name: 'validacao_login',
     component: () => import('@/views/ValidaLogin.vue'),
+    beforeEnter: endPointConfi,
   },
   {
     path: '/checkout',
@@ -166,12 +167,10 @@ router.beforeEach(async (to, from, next) => {
   if(to.meta.requiresAuth == true || to.meta.requiresAuthComp == true) {
 
     if(sessionId == null && to.meta.requiresAuth) {
-      //console.log('Entrou no 1');
       return next('/login');
     }
 
     if(to.meta.requiresAuthComp && Object.keys(ingressos.getAll()).length === 0) {
-      //console.log('Entrou no 2');
       return next('/');
     }
 
@@ -192,8 +191,9 @@ router.beforeEach(async (to, from, next) => {
       const res = await axios.get(`${link}/ws/geral/usuario.asp?key=${key}&gmet=4&par1=${cpf}&par2=${passaporte}`);
 
       if(res.data.statusId == '00') { 
-        //console.log('Passou ...');
         next(); 
+      } else {
+        return next('/');
       }
        
     } catch (error) {

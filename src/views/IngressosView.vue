@@ -54,7 +54,10 @@
                 :eve_cod="Number(eve_cod)" 
                 :pdv_id="Number(pdv_id)" 
                 :setor_id="Number(lote.gru_id)"
+                :qtde_cpf="Number(dadosEvento.qtde_cpf) || 10"
+                :broquedBtQtd="broqueaBotoesQtd"
                 @carrinho="carrinhoInicial"
+                @limitCpf="broquedLimitCpf"
               ></IngressosComp>
             </b-collapse>
           </template>
@@ -169,6 +172,8 @@ export default {
       retorno: undefined,
       logo: '',
       guardaIngressos: guardaIngressoStore(),
+      disponivelCpf: 0,
+      broqueaBotoesQtd: false,
       //dadosValidacao: guardaIngressos.state.dadosValidacao
     }
   },
@@ -244,6 +249,12 @@ export default {
     },
     estadoAlerta(data) {
      this.retorno = data; 
+    },
+    broquedLimitCpf(value) {
+      if(this.dadosEvento.qtde_cpf != 0) {
+        value == '+' ? this.disponivelCpf++ : this.disponivelCpf--;
+        this.broqueaBotoesQtd = this.disponivelCpf >= this.dadosEvento.qtde_cpf ? true : false; 
+      }
     },
     carrinhoInicial(value) {
       let somaValores = 0;

@@ -75,9 +75,11 @@ export default {
     eve_cod: Number,
     pdv_id: Number,
     setor_id: Number,
-    eve_mostra_taxa: String
+    eve_mostra_taxa: String,
+    qtde_cpf: Number,
+    broquedBtQtd: Boolean,
   },
-  emits: ['carrinho'],
+  emits: ['carrinho', 'limitCpf'],
   data() {
     return {
       val: 0,
@@ -93,7 +95,6 @@ export default {
       opcoesMesas: [],
       selectedMesa: {},
       errMesa: [],
-      max: 10,
     }
   },
   async created() {
@@ -121,14 +122,26 @@ export default {
       handler(novo) {
         this.dadosMesaSelect(novo);
       }
-    }
+    },
+    broquedBtQtd: {
+      deep: true,
+      handler() {
+        this.broquedAllBtns();
+      }
+    },
   },
   methods: {
+    broquedAllBtns() {
+      for(let id in this.ingressos) {
+        let ite_cod = this.ingressos[id].ite_cod;
+        this.disabledMais[ite_cod] = this.broquedBtQtd;   
+      }
+    },
     categoriaIngresso,
     formatValor,
     venda_min_max,
     quantMais(ingresso) {
-      let max = this.max;
+      let max = this.qtde_cpf;
       const id = Number(ingresso.ite_cod);
 
       if(this.venda[id] == undefined) {
@@ -169,6 +182,10 @@ export default {
         this.disabledMenos[id] = false;
 
         this.atualizaValores(id);
+
+        this.$emit('limitCpf', '+');
+
+        //console.log(this.broquedBtQtd);
       }
 
       if(ingresso.mesa == 'S') this.ajustaMesa(id);
@@ -190,6 +207,8 @@ export default {
       }
 
       this.atualizaValores(id);
+
+      this.$emit('limitCpf', '-');
 
       if(ingresso.mesa == 'S') this.ajustaMesa(id);  
 
@@ -342,8 +361,6 @@ export default {
       this.carrinhoInicial(this.venda[id]);
     },
     carrinhoInicial(venda) {
-      //console.log(venda);
-
       if(!venda || !venda.ite_cod) return;
       this.$emit('carrinho', venda);
     },

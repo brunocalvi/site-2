@@ -40,8 +40,6 @@ export default {
       binary_mode = true;
     }
     
-    console.log(ingressos);
-
     for(let eve in ingressos) {
       valor_seguro.push(0)
       forma_de_entrega.push(ingressos[eve].form_entrega);
@@ -55,13 +53,28 @@ export default {
       }
 
       for(let i in ingressos[eve].ingresso) {
-        qtd_ing.push(ingressos[eve].ingresso[i].qtd);
-        mes_id.push(ingressos[eve].ingresso[i].mes_id);
-        mas_id.push(ingressos[eve].ingresso[i].mas_id || 0);
-        ite_cod.push(ingressos[eve].ingresso[i].ite_cod);
-        id_setor.push(ingressos[eve].ingresso[i].gru_id); 
-        pdv_id.push(ingressos[eve].pdv_id); 
-        eve_cod.push(ingressos[eve].eve_cod); 
+        if(ingressos[eve].ingresso[i].mas_id != undefined) {
+          let mas = ingressos[eve].ingresso[i].mas_id.split(",");
+
+          for(let j = 0; j < mas.length; j++) {
+            qtd_ing.push(1);
+            mes_id.push(0);
+            mas_id.push(mas[j]);
+            ite_cod.push(ingressos[eve].ingresso[i].ite_cod);
+            id_setor.push(ingressos[eve].ingresso[i].gru_id); 
+            pdv_id.push(ingressos[eve].pdv_id); 
+            eve_cod.push(ingressos[eve].eve_cod); 
+          }
+
+        } else {
+          qtd_ing.push(ingressos[eve].ingresso[i].qtd);
+          mes_id.push(ingressos[eve].ingresso[i].mes_id);
+          mas_id.push(ingressos[eve].ingresso[i].mas_id || 0);
+          ite_cod.push(ingressos[eve].ingresso[i].ite_cod);
+          id_setor.push(ingressos[eve].ingresso[i].gru_id); 
+          pdv_id.push(ingressos[eve].pdv_id); 
+          eve_cod.push(ingressos[eve].eve_cod); 
+        }
 
         tot += ingressos[eve].ingresso[i].valorTot * ingressos[eve].ingresso[i].qtd;
 

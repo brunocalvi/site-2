@@ -38,8 +38,7 @@ export default {
         return `SIS-NP313635 : ${response.data.statusMsg}`;
       }
     } catch (error) {
-      console.error('Erro ao inserir os dados nominais: ', error);
-      throw error;
+      console.error('Erro ao inserir os dados nominais.');
     }
   },
   async eventosProdutor(data) {
@@ -48,8 +47,7 @@ export default {
       return response.data.Lista;
 
     } catch (error) {
-      console.error('Erro ao buscar os dados do produtor: ', error);
-      throw error;
+      console.error('Erro ao buscar os dados do produtor.');
     }
   },
   async dadosEvento(data) {
@@ -58,8 +56,7 @@ export default {
       return response.data;
 
     } catch (error) {
-      console.error('Erro ao buscar os dados do evento: ', error);
-      throw error;
+      console.error('Erro ao buscar os dados do evento.');
     }
   },
   async buscaMaisEventosPai(data) {
@@ -68,8 +65,7 @@ export default {
       return response.data;
 
     } catch (error) {
-      console.error('Erro ao buscar os dados do evento: ', error);
-      throw error;
+      console.error('Erro ao buscar os dados do agrupamento.');
     }
   },
   async dadosFormaEntrega(forma_entrega) {
@@ -78,8 +74,7 @@ export default {
       return response.data;
 
     } catch (error) {
-      console.error('Erro ao buscar a forma de entrega: ', error);
-      throw error;
+      console.error('Erro ao buscar a forma de entrega.');
     }
   },
   async restricaoCpfMeia(data) {
@@ -88,8 +83,7 @@ export default {
       return response.data;
 
     } catch (error) {
-      console.error('Erro ao consultar restrição de cpf e meia: ', error);
-      throw error;
+      console.error('Erro ao consultar restrição de cpf e meia.');
     }
   },
   async restricaoCpfitemLote(data) {
@@ -98,8 +92,7 @@ export default {
       return response.data;
 
     } catch (error) {
-      console.error('Erro ao consultar restrição de cpf e item code: ', error);
-      throw error;
+      console.error('Erro ao consultar restrição de cpf e item code.');
     }
   },
   async restricaoPreCadastro(data) {
@@ -108,8 +101,7 @@ export default {
       return response.data;
 
     } catch (error) {
-      console.error('Erro ao verificar o Pre Cadastro: ', error);
-      throw error;
+      console.error('Erro ao verificar o Pre Cadastro.');
     }
   },
 }

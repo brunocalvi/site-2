@@ -6,13 +6,8 @@ export const infoUsuarioStore = defineStore("infoUsuario", {
     informacoesUsuario: {}
   }),
   persist: {
-    enabled: true,
-    strategies: [
-      {
-        key: 'infoUsuario',
-        storage: sessionStorage,
-      },
-    ],
+    key: 'infoUsuario',
+    storage: sessionStorage,
   },
   actions: {
     salvar(payload) {

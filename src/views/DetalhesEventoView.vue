@@ -167,6 +167,11 @@ export default {
         pdv_id: this.pdv_id,
       });
 
+      if(this.dadosEvento.DataHora.length == 0) {
+        this.$router.push('/');
+        return;
+      }
+
       if(this.dadosEvento.statusId != '00' || this.dadosEvento.ativo != '1') {
         this.$router.push('/');
         return;

@@ -41,9 +41,9 @@
                       <b>Ingresso(s):</b><br> 
                       <template v-for="ing in detalhe.ingresso" :key="ing.ite_cod">
                         {{ ing.qtd }}x - {{ ing.nome_setor_lote }}
-                        <span v-show="ing.label_mas_id != null">
-                        | assento: {{ ing.label_mas_id }}
-                        </span><br> 
+                        <span v-show="ing.label_mas_id != null">| {{ ing.label_mas_id }}</span> 
+                        <span v-show="ing.mes_id != 0">| {{ ing.mes_numero }}</span>
+                        <br> 
                       </template>
                     </p>
 
@@ -127,17 +127,7 @@
 
                   <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-cartao" role="tabpanel" aria-labelledby="pills-cartao-tab" tabindex="0">
-                      
-                      Cartão de Credito ...
-                      <div class="text-center">
-                        <button type="button" class="btn-finish" @click="pagConfirmacao()">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                            <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
-                          </svg>
-                          <div class="text">Finalizar Pagamento</div>
-                        </button>
-                      </div>
+                      <FormCartaoCredito></FormCartaoCredito>
                     </div>
 
                     <template v-if="mostraPix">
@@ -216,20 +206,19 @@
 <script>
 import { guardaIngressoStore } from '@/store/guardaIngressos.js';
 import { infoUsuarioStore } from '@/store/infoUsuario.js';
-//import infoUsuario from "@/store/infoUsuario.js";
-//import dadosValeDesconto from '@/store/dadosValeDesconto.js';
 
 import HeaderInclude from "./includes/HeaderInclude.vue";
 import FooterInclude from "./includes/FooterInclude.vue";
 import Alert from "@/components/alerts/AlertAcao.vue";
 import IniciaProcessando from '@/components/IniciaProcessando.vue';
+import FormCartaoCredito from '@/components/formCartaoCredito.vue';
 
 import { preparaTituloLink, formatValor } from '@/utils/formDadosEvento.js';
 
 import endPointValeDesconto from '@/services/endPointValeDesconto.js';
 import endPointConfig from '@/services/endPointConfig.js';
 import endPointEvento from '@/services/endPointEvento.js';
-//import submetDadosPag from '@/process/submetDadosPag.js';
+import submetDadosPag from '@/process/submetDadosPag.js';
 
 import isentos from '@/process/processIsentos.js';
 import pix from '@/process/processPix.js';
@@ -237,7 +226,7 @@ import boleto from '@/process/processBoleto.js';
 
 export default {
   components: {
-    HeaderInclude, FooterInclude, Alert, IniciaProcessando 
+    HeaderInclude, FooterInclude, Alert, IniciaProcessando, FormCartaoCredito 
   },
   data() {
     return {
@@ -274,8 +263,6 @@ export default {
     let tot = 0;
 
     if(config) this.gt_moeda = config.gt_moeda;
-
-    //console.log(ingressos);
 
     for(let ing in ingressos) {
       for(let i in ingressos[ing].ingresso) {
@@ -546,10 +533,10 @@ export default {
 
         try {
 
-          console.log(link_pagto);
-          console.log(this.jsonFinal);
+          //console.log(link_pagto);
+          //console.log(this.jsonFinal);
 
-          /*let pag = await submetDadosPag.processaPagamento(link_pagto, this.jsonFinal);
+          let pag = await submetDadosPag.processaPagamento(link_pagto, this.jsonFinal);
 
           if(pag.status == '3DS') {
             alert('Carregar o 3DS para processamento ...');
@@ -563,7 +550,7 @@ export default {
                 }
               });
             }, "6000");
-          }*/
+          }
 
         } catch(e) {
           alert('erro ao Fazer o pagamento, vou retorna ao inicio!');

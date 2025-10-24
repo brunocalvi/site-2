@@ -5,13 +5,8 @@ export const guardaIngressoStore = defineStore("guardaIngressos", {
     dadosValidacao: {}
   }),
   persist: {
-    enabled: true,
-    strategies: [
-      {
-        key: 'guardaIngressos',
-        storage: sessionStorage,
-      },
-    ],
+    key: 'guardaIngressos',
+    storage: sessionStorage,
   },
   actions: {
     salvar(eve_cod, payload) {

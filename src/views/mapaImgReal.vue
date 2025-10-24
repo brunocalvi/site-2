@@ -14,6 +14,18 @@
       </div>
     </div>
 
+    <div class="booking-details">
+      <h2 id="tg-button">Detalhes da Compra</h2>
+      <div class="hidden-details">
+        <ul id="selected-seats">
+          <li v-for="car in labelAssento" :key="car.id">
+            Assento: <b>{{ car.label }}</b>
+          </li>
+        </ul>
+      </div>	
+      <h3> Assentos Selecionados <b>({{ addNum }})</b></h3>
+    </div>
+
     <div id="zoomable-container">
       <VueZoomable class="area-zoom-vue" selector="#image-map-wrapper" 
         :minZoom="0.3"
@@ -24,7 +36,7 @@
         v-model:zoom="zoom"
       >
         <div id="image-map-wrapper" class="image-mapper">
-          <img :src="`https://img.ingressodigital.com/imagem/logo/${img_nome}`" width="auto" height="auto" id="svgMapa" class="seats-map">
+          <img :src="`${link_sistema}imagem/logo/${img_nome}`" width="auto" height="auto" id="svgMapa" class="seats-map">
           <svg id="image-map-svg" width="auto" height="auto" >
             <template v-for="(item, index) in shapes" :key="index">
               <circle target="_blank"
@@ -49,6 +61,9 @@
                 :width="item.width"
                 :height="item.height"
                 :class="item.class"
+                :alt="item.alt"
+                :title="item.title"
+                :href="item.href"
                 @click="selecionarAssento(item)"
                 @mouseover="mostrarModal(item, $event)"
                 @mouseout="ocultarModal()"
@@ -100,6 +115,8 @@ import diversaMapas from '@/services/diversaMapas.js';
 
 import { preparaTituloLink } from '@/utils/formDadosEvento.js';
 
+import { guardaIngressoStore } from '@/store/guardaIngressos.js';
+
 import AlertMap from "@/components/alerts/AlertMap.vue";
 
 import "vue-zoomable/dist/style.css";
@@ -134,7 +151,17 @@ export default {
       celInicia: true,
       retorno: undefined,
       tipoMsg: 's',
+      link_sistema: process.env.VUE_APP_LINK_SISTEMA,
+      tot_ing: Number(this.$route.query.tot_ing || 0),
+      labelAssento: {},
+      guardaIngressos: guardaIngressoStore(),
+      addNum: 0,
     }
+  },
+  async created() {
+    //libera os assentos reservado no app cliente
+    const liberar = await diversaMapas.libReservaAppCliente(this.eve_cod);
+    console.log(liberar.statusId);
   },
   async mounted() {
     const data = await diversaMapas.listaMapaImgReal({
@@ -193,6 +220,9 @@ export default {
             y: Math.min(y1, y2),
             width,
             height,
+            alt: attrs.alt,
+            title: attrs.title,
+            href: attrs.href,
             class: this.definirClasse(attrs.href)
           })
 
@@ -282,23 +312,78 @@ export default {
      this.retorno = data; 
     },
     selecionarAssento(item) {
-      //console.log('Clicou em:', item);
+      const mas_id = item.href.replace(/[^0-9]/g, '');
 
       if(item.class == 'vendido') {
         this.adicionarAlerta(`Este assento já foi reservado por outra pessoa.`, 'e');
 
       } else {
-        if(item.class == 'selected') {
-          item.class = item.class === 'selected' ? 'assento' : 'selected';
-          this.adicionarAlerta(`Assento ${item.alt} selecionado`, 's');
+        if(item.class == 'assento') {
+          if(this.addNum >= this.tot_ing) {
+            this.adicionarAlerta('Já foi selecionada a quantidade correta para avançar.', 'e');
+          
+          } else {
+            this.addNum++;
+
+            this.labelAssento[mas_id] = {
+              id: mas_id,
+              label: item.alt,
+            }
+
+            item.class = item.class === 'selected' ? 'assento' : 'selected';
+            this.adicionarAlerta(`Assento ${item.alt} selecionado`, 's');
+            this.atualizaStatusModal('selected');
+          }
         } else {
+          this.addNum--;
+
           item.class = item.class === 'selected' ? 'assento' : 'selected';
           this.adicionarAlerta(`Assento ${item.alt} liberado.`, 's');
+          this.atualizaStatusModal('assento');
 
-        }
+          delete this.labelAssento[mas_id];
+        } 
       }
     },
-    continuarEscolha() {},
+    continuarEscolha() {
+      const qtdSelect = Object.keys(this.labelAssento).length;
+      let ingressos = this.guardaIngressos.getIngresso(this.eve_cod);
+
+      console.log(this.labelAssento);
+
+      if(qtdSelect === 0) {
+        this.adicionarAlerta('É necessário selecionar assento(s) para continuar', 'e');
+        return;
+
+      } else if (qtdSelect != this.tot_ing) {
+        this.adicionarAlerta(`Precisa selecionar ${this.tot_ing} assento(s) para continuar`, 'e');
+        return;
+
+      } else {
+        const assentosArray = Object.values(this.labelAssento);
+        let pos = 0;
+        
+        for(let idIng in ingressos) {
+          const qtd = ingressos[idIng].qtd;
+          const selecionados = assentosArray.slice(pos, pos + qtd);
+
+          let mas_id = [];
+          let label_mas_id = [];
+
+          for(let i in selecionados) {
+            mas_id.push(selecionados[i].id);
+            label_mas_id.push(selecionados[i].label);
+          }
+
+          ingressos[idIng].mas_id = mas_id.toString();
+          ingressos[idIng].label_mas_id = label_mas_id.toString();
+
+          pos += qtd;
+        }
+
+        this.$router.push('/validacao');
+      }
+    },
   }
 }
 </script>

@@ -21,7 +21,7 @@
           </div>
 
           <div class="col-md-4 col-lg-3" data-aos="fade-up" data-aos-duration="1500">
-            <div class="dashboard-content__input">
+            <div>
               <select class="form-control" id="txt_estado" name="txt_estado" v-model="txt_estado">
                 <option value="" selected>Estado</option>
                 <option value="AC">Acre</option>
@@ -57,7 +57,7 @@
           </div>
 
           <div class="col-md-4 col-lg-3" data-aos="fade-up" data-aos-duration="2000">
-            <div class="dashboard-content__input">
+            <div>
               <select class="select2 form-control" id="txt_genero" name="txt_genero" v-model="txt_genero">
                 <option value="">Gêneros</option>
                 <option v-for="genero in lista_generos" :key="genero.codigo" :value="genero.codigo">
@@ -68,7 +68,7 @@
           </div>
 
           <div class="col-md-4 col-lg-3" data-aos="fade-up" data-aos-duration="1000">
-            <div class="dashboard-content__input">
+            <div>
               <select class="select2 form-control" id="txt_cidade" name="txt_cidade" v-model="txt_cidade">
                 <option value="">Cidades</option>
                 <option v-for="(cidade, index) in lista_cidades" :key="index" :value="cidade.Cidade">

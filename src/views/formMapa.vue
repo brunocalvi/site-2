@@ -131,8 +131,8 @@ export default {
   },
   async created() {
     //libera os assentos reservado no app cliente
-    //const liberar = await diversaMapas.libReservaAppCliente(this.eve_cod);
-    //console.log(liberar.statusId);
+    const liberar = await diversaMapas.libReservaAppCliente(this.eve_cod);
+    console.log(liberar.statusId);
 
     this.dadosEvento = this.guardaIngressos.getAll();
     this.eve_nome = 'Retorno'|| this.dadosEvento[this.eve_cod].eve_nome;
@@ -447,35 +447,6 @@ body {
   padding: 5px;
   border-radius: 5px;
 }
-.booking-details {
-  font-size: 12px;
-  right: 0;
-  top: 0;
-  background-color: #f1f1f1;
-  padding: 20px;
-  z-index: 1;
-  -webkit-box-shadow: 0 5px 50px -1px rgba(0, 0, 0, .2);
-  box-shadow: 0 5px 50px -1px rgba(0, 0, 0, .2);
-}
-.booking-details h2 {
-  margin: 0px;
-  font-size: 17px;
-}
-.booking-details h3 {
-  margin: 5px 5px 0 0;
-  font-size: 14px;
-}
-#selected-seats {
-  max-height: 70px;
-  background-color: #fff;
-  margin: 10px auto;
-  border-radius: 5px;
-  padding: 10px;
-  overflow: auto;
-}
-#selected-seats li {
-  margin-bottom: 3px;
-}
 .pd-10 {
   padding-top: 15px;
 }
@@ -483,23 +454,17 @@ body {
   position: fixed!important;
   bottom: 6rem!important;
 }
+div.seatCharts-seat.available.first-class:hover {
+  background-color: #4d4dff;
+}
 @media(max-width: 600px) {  
-  .booking-details {
-    position: initial;
-  }
   .area-zoom-vue {
     height: 75vh;
   }
 }
 @media(min-width: 601px) {  
-  .booking-details {
-    position: fixed;
-  }
   .area-zoom-vue { 
     height: 88vh;
   }
-}
-div.seatCharts-seat.available.first-class:hover {
-  background-color: #4d4dff;
 }
 </style>
