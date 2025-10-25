@@ -16,9 +16,17 @@ export default {
       const response = await api.get(`/config_mobile.asp?key=${key}&gmet=2&par1=${eve_cod}&par2=S`);
       return response.data;
     
-    } catch (error) {
-      console.error('Erro ao buscar as chaves de pagamento: ', error);
-      throw error;
+    } catch(error) {
+      console.error('Erro ao buscar as chaves de pagamento.');
+    }
+  },
+  async getParcelasPersonalizadas(data) {
+    try {
+      const response = await api.get(`/parcelas_personalizadas.asp?key=${key}&par1=${data.eve_cod}&par2=${data.total}`);
+      return response.data.lista;
+    
+    } catch(error) {
+      console.error('Erro ao buscar as parcelas customizadas.');
     }
   },
 }

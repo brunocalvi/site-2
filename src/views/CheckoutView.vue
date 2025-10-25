@@ -127,7 +127,7 @@
 
                   <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-cartao" role="tabpanel" aria-labelledby="pills-cartao-tab" tabindex="0">
-                      <FormCartaoCredito></FormCartaoCredito>
+                      <FormCartaoCredito :total="totalDaSelecao"></FormCartaoCredito>
                     </div>
 
                     <template v-if="mostraPix">
