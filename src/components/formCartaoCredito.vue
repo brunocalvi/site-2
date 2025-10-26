@@ -97,35 +97,45 @@
       <div class="col-md-6">
         <div class="sidebar-widget-02__form">
           <div class="checkout-form__input" id="select_parcelas">
-            <template v-if="juros_personalizado == 'S'">
-              <label class="form-label">Parcelas*</label>
-              <b-form-select class="form-control" id="installments" name="installments" :options="parcelasCustomizadas" v-model="selectedParcela"></b-form-select>
-            </template>
-            <template v-else>
-
-            </template>
+            <label class="form-label">Parcelas*</label>
+            <b-form-select class="form-control" id="installments" name="installments" :options="parcelasCustomizadas" v-model="selectedParcela"></b-form-select>
           </div>
         </div>
       </div>
 
+      <div class="col-md-6">
+        <div class="checkout-form__input">
+          <label class="form-label">CPF/CNPJ Do Titular *</label>
+          <input type="text" class="form-control" placeholder="CPF/CNPJ" aria-label="docNumber" name="docNumber" id="docNumber" data-checkout="docNumber" maxlength="14" autocomplete=off required>
+        </div>
+      </div>
 
+      <div class="col-md-12">
+        <div class="checkout-form__input">
+          <label class="form-label">E-mail *</label>
+          <input type="email" class="form-control" name="email" placeholder="E-mail" id="email" required>
+        </div>
+      </div>
 
+      <input type="hidden" name="valParcelado" id="valParcelado" value=""/>
+      <input type="hidden" name="valTotal" id="valTotal" value=""/>
+      <input type="hidden" name="numParcelas" id="numParcelas" value=""/>
 
+      <input type="hidden" name="transactionAmount" id="transactionAmount" :value="total" />
+      <input type="hidden" name="paymentMethodId" id="paymentMethodId" />
+      <input type="hidden" name="bin_cc" id="bin_cc" />
+      <input type="hidden" id="num_cartao_final" name="num_cartao_final" value="">
+      <input type="hidden" id="clearsale_sessionid" :value="sessionId"/>
+      <input type="hidden" id="issuer" name="issuer" data-checkout="issuer">
 
+      <template v-if="gateway == 'PSG_T'">
+        <input type='hidden' name='hash_pseg' value=''>
+        <input type='hidden' name='token' id='token_payu' value=''>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <template v-if="pseg_antigo == 'N'">
+          <input type="hidden" name="numParcelas" id="numParcelas" value=""/>
+        </template>
+      </template>
     </div>
 
     <div class="text-center">
@@ -162,7 +172,8 @@ export default {
       juros_personalizado: 'N',
       eve_cod: 0,
       parcelasCustomizadas: [{ value: '-1', text: 'Selecione ...' }],
-      selectedParcela: '-1',  
+      selectedParcela: '-1',
+      pseg_antigo: 'N',  
     }
   },
   async mounted() {
@@ -197,8 +208,18 @@ export default {
     this.carregarAnos();
 
     // gerar as parcelas customizadas
-    this.geraParcelasCustom(); 
+    if(this.dadosGateway.juros_personalizado == 'S') {
+      this.geraParcelasCustom(); 
+    }
 
+    // gerar as parcelas da pagarme
+    if(this.gateway == "PAGAR") {
+      this.geraParcelasPagame(); 
+    }
+
+    if(this.dadosGateway.pseg_api_access_token == '' || this.dadosGateway.pseg_api_public_key == '') {
+      this.pseg_antigo = 'S';
+    }
   },
   methods: {
     carregarScriptSafra() {
@@ -233,6 +254,20 @@ export default {
       for(let i = 0; i < parcelas.length; i++) {
         this.parcelasCustomizadas.push({ 
           value: parcelas[i].numero_parcela, 
+          text: `${parcelas[i].numero_parcela} x de R$ ${parcelas[i].valor_parcela} | Total: R$ ${parcelas[i].total_parcela}` 
+        }); 
+      }  
+    },
+    async geraParcelasPagame() {
+      const parcelas = await endPointConfig.getParcelasPagarMe({
+        parcela_car_pagar: this.dadosGateway.parcela_car_pagar,
+        juros_car_pagar: this.dadosGateway.juros_car_pagar,
+        total: this.total,
+      });
+
+      for(let i = 0; i < parcelas.length; i++) {
+        this.parcelasCustomizadas.push({ 
+          value: `${parcelas[i].numero_parcela}/${parcelas[i].valor_parcela}/${parcelas[i].total_parcela}`, 
           text: `${parcelas[i].numero_parcela} x de R$ ${parcelas[i].valor_parcela} | Total: R$ ${parcelas[i].total_parcela}` 
         }); 
       }  

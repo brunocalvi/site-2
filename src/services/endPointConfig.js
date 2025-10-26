@@ -29,4 +29,13 @@ export default {
       console.error('Erro ao buscar as parcelas customizadas.');
     }
   },
+  async getParcelasPagarMe(data) {
+    try {
+      const response = await api.get(`/pagar.php?key=${key}&max_parcela=${data.parcela_car_pagar}&juros=${data.juros_car_pagar}&valor=${data.total}`);
+      return response.data.lista;
+    
+    } catch(error) {
+      console.error('Erro ao buscar as parcelas do pagar-me.');
+    }
+  },
 }
